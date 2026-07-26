@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="format-detection" content="telephone=no">
+<title>研究生宿舍室友匹配 · 人格测试</title>
+<meta property="og:title" content="研究生宿舍室友匹配 🦁">
+<meta property="og:description" content="测测你的宿舍人格，找到最合拍的室友">
+<style>
+/* ===== CSS Variables & Reset ===== */
+:root {
+  --bg: #F0F4F8;
+  --card: #FFFFFF;
+  --text: #1A202C;
+  --text-light: #4A5568;
+  --text-lighter: #A0AEC0;
+  --shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.10);
+  --radius: 20px;
+  --radius-sm: 12px;
+  --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --accent: #3182CE;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { font-size: 16px; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", "Noto Sans SC", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh; min-height: 100dvh;
+  display: flex; justify-content: center; align-items: flex-start;
+  line-height: 1.6; overflow-x: hidden; -webkit-font-smoothing: antialiased;
+}
+.bg-deco { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.bg-deco .circle { position:absolute; border-radius:50%; opacity:0.05; }
+.bg-deco .c1 { width:300px; height:300px; background:#3182CE; top:-80px; right:-60px; }
+.bg-deco .c2 { width:200px; height:200px; background:#38B2AC; bottom:10%; left:-50px; }
+.bg-deco .c3 { width:160px; height:160px; background:#ED8936; top:40%; right:-40px; }
+.bg-deco .c4 { width:240px; height:240px; background:#9F7AEA; bottom:-60px; right:20%; }
+
+.app { position:relative; z-index:1; width:100%; max-width:480px; min-height:100vh; min-height:100dvh; padding:20px 16px 40px; display:flex; flex-direction:column; }
+.screen { display:none; flex-direction:column; flex:1; }
+.screen.active { display:flex; }
+
+/* Welcome */
+.welcome { align-items:center; justify-content:center; text-align:center; padding-top:50px; }
+.welcome-icon { font-size:80px; margin-bottom:12px; animation: bounce 2s infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-12px);} }
+.welcome h1 { font-size:28px; font-weight:800; letter-spacing:1px; background:linear-gradient(135deg,#3182CE,#38B2AC); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:8px; }
+.welcome .subtitle { font-size:15px; color:var(--text-light); margin-bottom:40px; line-height:1.8; }
+.welcome .features { display:flex; gap:10px; margin-bottom:36px; flex-wrap:wrap; justify-content:center; }
+.welcome .feature-tag { background:#fff; border-radius:20px; padding:6px 14px; font-size:12px; color:var(--text-light); box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+
+/* Buttons */
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:6px; border:none; cursor:pointer; font-size:17px; font-weight:700; padding:14px 40px; border-radius:50px; transition:var(--transition); font-family:inherit; letter-spacing:0.5px; -webkit-tap-highlight-color:transparent; outline:none; }
+.btn:active { transform:scale(0.96); }
+.btn-primary { background:linear-gradient(135deg,#3182CE,#38B2AC); color:#fff; box-shadow:0 8px 28px rgba(49,130,206,0.30); }
+.btn-outline { background:#fff; color:var(--accent); border:2px solid var(--accent); box-shadow:var(--shadow); }
+.btn-block { width:100%; }
+.btn-sm { font-size:14px; padding:10px 24px; }
+.btn-xs { font-size:12px; padding:8px 18px; }
+.btn-group { display:flex; gap:12px; width:100%; margin-top:16px; }
+.btn-group .btn { flex:1; }
+
+/* Form */
+.form-card { background:var(--card); border-radius:var(--radius); padding:24px 20px; box-shadow:var(--shadow); margin-bottom:16px; }
+.form-card h2 { font-size:20px; font-weight:800; margin-bottom:6px; text-align:center; }
+.form-card .form-sub { font-size:13px; color:var(--text-lighter); text-align:center; margin-bottom:20px; }
+.form-group { margin-bottom:14px; }
+.form-group label { display:block; font-size:14px; font-weight:600; margin-bottom:4px; color:var(--text); }
+.form-group input, .form-group select { width:100%; padding:12px 14px; border:2px solid #E2E8F0; border-radius:var(--radius-sm); font-size:15px; font-family:inherit; transition:var(--transition); background:#F7FAFC; color:var(--text); }
+.form-group input:focus, .form-group select:focus { outline:none; border-color:var(--accent); background:#fff; }
+.form-group input::placeholder { color:#CBD5E0; }
+.form-group .error-msg { font-size:12px; color:#E53E3E; margin-top:2px; display:none; }
+.radio-group { display:flex; gap:24px; }
+.radio-group label { display:flex; align-items:center; gap:6px; font-weight:400; cursor:pointer; font-size:15px; }
+.radio-group input[type="radio"] { width:18px; height:18px; accent-color:var(--accent); }
+
+/* Quiz */
+.quiz-header { margin-bottom:24px; }
+.quiz-progress-info { display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; color:var(--text-light); }
+.quiz-progress-bar { height:6px; background:#E2E8F0; border-radius:3px; overflow:hidden; }
+.quiz-progress-fill { height:100%; border-radius:3px; background:linear-gradient(90deg,#3182CE,#38B2AC); transition:width 0.4s ease; width:0%; }
+.quiz-card { background:var(--card); border-radius:var(--radius); padding:28px 22px; box-shadow:var(--shadow); margin-bottom:16px; transition:var(--transition); }
+.quiz-card .q-num { font-size:12px; color:var(--text-lighter); margin-bottom:8px; letter-spacing:1px; text-transform:uppercase; }
+.quiz-card .q-text { font-size:20px; font-weight:700; line-height:1.5; margin-bottom:24px; }
+.quiz-options { display:flex; flex-direction:column; gap:10px; }
+.quiz-option { display:flex; align-items:center; gap:12px; background:#F7FAFC; border:2px solid transparent; border-radius:var(--radius-sm); padding:15px 18px; cursor:pointer; transition:var(--transition); font-size:15px; text-align:left; width:100%; font-family:inherit; -webkit-tap-highlight-color:transparent; }
+.quiz-option:active { transform:scale(0.98); }
+.quiz-option .opt-letter { width:32px; height:32px; border-radius:50%; background:#E2E8F0; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:14px; flex-shrink:0; transition:var(--transition); }
+.quiz-option:hover, .quiz-option.selected { border-color:var(--accent); background:#fff; }
+.quiz-option.selected .opt-letter { background:var(--accent); color:#fff; }
+.quiz-option.selected { box-shadow:0 4px 16px rgba(0,0,0,0.06); }
+.btn-back { display:block; margin:14px auto 0; background:none; border:none; color:var(--text-lighter); font-size:14px; cursor:pointer; font-family:inherit; padding:8px 16px; }
+
+/* PreCheck */
+.precheck { align-items:center; justify-content:center; text-align:center; padding-top:60px; }
+.precheck-icon { font-size:72px; margin-bottom:16px; }
+.precheck h2 { font-size:22px; font-weight:800; margin-bottom:10px; }
+.precheck p { font-size:14px; color:var(--text-light); margin-bottom:32px; line-height:1.7; }
+
+/* Result */
+.result { align-items:center; text-align:center; padding-top:10px; }
+@keyframes resultBounce { 0%{transform:scale(0.3);opacity:0;} 50%{transform:scale(1.15);} 100%{transform:scale(1);opacity:1;} }
+.result-type-name { font-size:32px; font-weight:900; letter-spacing:2px; margin-bottom:6px; }
+.result-card { background:var(--card); border-radius:var(--radius); padding:20px; box-shadow:var(--shadow); width:100%; margin:10px 0; }
+.result-card .section-title { font-size:15px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+.compat-row { display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:6px; background:#F7FAFC; border-radius:var(--radius-sm); }
+.compat-row img { width:36px; height:36px; flex-shrink:0; }
+.compat-row .c-info { flex:1; text-align:left; }
+.compat-row .c-name { font-weight:700; font-size:14px; }
+.compat-row .c-reason { font-size:11px; color:var(--text-light); }
+
+.caution-row { display:flex; align-items:center; gap:10px; padding:10px 12px; margin-bottom:6px; background:#FFF5F5; border-radius:var(--radius-sm); border-left:3px solid #FC8181; }
+
+.result-tags { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:12px 0; }
+.result-tag { color:#fff; font-size:13px; padding:6px 16px; border-radius:20px; font-weight:600; opacity:0.9; }
+.result-message { background:linear-gradient(135deg,#EBF8FF,#E6FFFA); border-radius:var(--radius-sm); padding:20px; margin:12px 0; width:100%; font-size:16px; font-weight:600; line-height:1.7; border-left:4px solid var(--accent); text-align:left; }
+.result .note { font-size:12px; color:var(--text-lighter); margin-top:8px; line-height:1.6; }
+
+/* Stats */
+.stats-section { width:100%; margin-top:20px; background:var(--card); border-radius:var(--radius); padding:20px 16px; box-shadow:var(--shadow); }
+.stats-section h3 { font-size:15px; text-align:center; margin-bottom:12px; color:var(--text); }
+.stats-list { display:flex; flex-direction:column; gap:8px; }
+.stats-row { display:flex; align-items:center; gap:8px; font-size:12px; }
+.stats-row .s-name { width:52px; flex-shrink:0; font-weight:600; font-size:12px; }
+.stats-row .s-bar-wrap { flex:1; height:18px; background:#EDF2F7; border-radius:9px; overflow:hidden; }
+.stats-row .s-bar { height:100%; border-radius:9px; transition:width 0.6s ease; min-width:2px; }
+.stats-row .s-count { width:65px; text-align:right; flex-shrink:0; color:var(--text-light); font-weight:600; font-size:11px; white-space:nowrap; }
+
+/* Toast */
+.toast { position:fixed; bottom:80px; left:50%; transform:translateX(-50%); background:#1A202C; color:#fff; padding:12px 28px; border-radius:50px; font-size:14px; z-index:999; pointer-events:none; opacity:0; transition:opacity 0.3s ease; }
+.toast.show { opacity:1; }
+
+/* Admin Panel */
+.admin-overlay { display:none; position:fixed; inset:0; background:#fff; z-index:1000; overflow-y:auto; }
+.admin-overlay.show { display:block; }
+.admin-panel { max-width:900px; margin:0 auto; padding:24px 20px; }
+.admin-panel h2 { font-size:22px; margin-bottom:8px; }
+.admin-panel .admin-bar { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin:16px 0; }
+.admin-table-wrap { overflow-x:auto; }
+.admin-table { width:100%; border-collapse:collapse; font-size:13px; }
+.admin-table th, .admin-table td { border:1px solid #E2E8F0; padding:8px 10px; text-align:left; }
+.admin-table th { background:#EDF2F7; font-weight:700; position:sticky; top:0; }
+.admin-table tr:hover { background:#F7FAFC; }
+.close-admin { position:fixed; top:16px; right:16px; z-index:1001; width:40px; height:40px; border-radius:50%; background:#1A202C; color:#fff; border:none; font-size:20px; cursor:pointer; }
+
+/* Has Roommate Done */
+.done-card { text-align:center; padding:30px 20px; }
+.done-card .done-icon { font-size:72px; margin-bottom:16px; }
+.done-card h2 { font-size:22px; font-weight:800; margin-bottom:8px; color:#38B2AC; }
+.done-card p { font-size:15px; color:var(--text-light); margin-bottom:24px; line-height:1.7; }
+
+/* Responsive */
+@media (max-width:380px) {
+  .welcome h1 { font-size:24px; }
+  .quiz-card .q-text { font-size:18px; }
+  .result-type-name { font-size:26px; }
+  .btn { font-size:15px; padding:12px 32px; }
+}
+@media (min-width:768px) { .app { padding:40px 24px 60px; } }
+</style>
+</head>
+<body>
+
+<div class="bg-deco">
+  <div class="circle c1"></div><div class="circle c2"></div><div class="circle c3"></div><div class="circle c4"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- Admin overlay -->
+<div class="admin-overlay" id="adminOverlay">
+  <button class="close-admin" onclick="closeAdmin()">✕</button>
+  <div class="admin-panel" id="adminPanel"></div>
+</div>
+
+<div class="app" id="app">
+
+  <!-- Screen 1: Welcome -->
+  <div class="screen active" id="screenWelcome">
+    <div class="welcome">
+      <div class="welcome-icon">🦁🏠</div>
+      <h1>研究生宿舍室友匹配</h1>
+      <p class="subtitle">设计与建筑学院 · 一站式学生社区<br>基于人格测试的智能室友匹配，帮你找到最合拍的室友<br>4人一间，温馨如家</p>
+      <div class="features">
+        <span class="feature-tag">🔟 10道趣味测试</span>
+        <span class="feature-tag">🦁 9种人格</span>
+        <span class="feature-tag">🏠 4人间匹配</span>
+        <span class="feature-tag">🤝 一站式社区</span>
+      </div>
+      <button class="btn btn-primary" onclick="startFlow()">开始匹配 🏠</button>
+      <p style="margin-top:32px;font-size:11px;color:var(--text-lighter);cursor:pointer;" onclick="promptAdmin()">🔧 管理入口</p>
+    </div>
+  </div>
+
+  <!-- Screen 2: Info Form -->
+  <div class="screen" id="screenInfo">
+    <div class="form-card" style="margin-top:16px;">
+      <h2>📋 填写你的信息</h2>
+      <p class="form-sub">请确保信息准确，学号将用于唯一标识</p>
+      <div class="form-group"><label>姓名 *</label><input type="text" id="fName" placeholder="请输入真实姓名" maxlength="20"></div>
+      <div class="form-group"><label>学号 *</label><input type="text" id="fStudentId" placeholder="请输入学号" maxlength="20"><span class="error-msg" id="errStudentId">学号格式不正确</span></div>
+      <div class="form-group"><label>专业 *</label><input type="text" id="fDept" placeholder="如：工业设计、环境设计" maxlength="50"></div>
+      <div class="form-group"><label>性别 *</label><div class="radio-group"><label><input type="radio" name="gender" value="男"> 男</label><label><input type="radio" name="gender" value="女"> 女</label></div></div>
+      <div class="form-group"><label>手机号 *</label><input type="tel" id="fPhone" placeholder="请输入手机号" maxlength="11"><span class="error-msg" id="errPhone">请输入正确的11位手机号</span></div>
+      <button class="btn btn-primary btn-block" onclick="submitInfo()">下一步 →</button>
+    </div>
+  </div>
+
+  <!-- Screen 3: PreCheck -->
+  <div class="screen" id="screenPreCheck">
+    <div class="precheck">
+      <div class="precheck-icon">🤝</div>
+      <h2>你是否已经提前确定了室友？</h2>
+      <p>如果已有约好的室友，请选择"是"进行登记；<br>如果还在寻找室友，请选择"否"继续测试。</p>
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px;">
+        <button class="btn btn-outline btn-block" onclick="showRoommateForm()" style="color:#E53E3E;border-color:#E53E3E;">是，我已选好室友</button>
+        <button class="btn btn-primary btn-block" onclick="startQuiz()">否，帮我匹配室友</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Screen 4: Has Roommate Form -->
+  <div class="screen" id="screenHasRoommate">
+    <div class="form-card" style="margin-top:16px;">
+      <h2>📝 已选室友登记</h2>
+      <p class="form-sub">登记后你将不会被纳入室友匹配池</p>
+      <div class="form-group"><label>你的室友姓名 *</label><input type="text" id="fRoommateName" placeholder="请输入室友姓名" maxlength="20"></div>
+      <button class="btn btn-primary btn-block" onclick="submitHasRoommate()" style="background:linear-gradient(135deg,#E53E3E,#ED8936);">提交登记 ✓</button>
+      <button class="btn btn-outline btn-block" style="margin-top:8px;font-size:14px;" onclick="skipToQuiz()">等等，我也想顺便测一下人格 →</button>
+    </div>
+    <!-- Done state -->
+    <div class="done-card" id="doneCard" style="display:none;">
+      <div class="done-icon">✅</div>
+      <h2>登记成功！</h2>
+      <p>你已被标记为"已有室友"。<br>祝你研究生生活愉快！🦁</p>
+      <button class="btn btn-outline btn-sm" onclick="skipToQuiz()" style="margin-top:8px;">顺便测一下我的人格 →</button>
+    </div>
+  </div>
+
+  <!-- Screen 5: Quiz -->
+  <div class="screen" id="screenQuiz">
+    <div class="quiz-header">
+      <div class="quiz-progress-info"><span id="quizProgressLabel">第 1/10 题</span><span id="quizPercent">0%</span></div>
+      <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+    </div>
+    <div class="quiz-card" id="quizCard">
+      <div class="q-num" id="qNum">QUESTION 1</div>
+      <div class="q-text" id="qText"></div>
+      <div class="quiz-options" id="qOptions"></div>
+      <button class="btn-back" id="btnBack" onclick="goBack()" style="display:none;">← 上一题</button>
+    </div>
+  </div>
+
+  <!-- Screen 6: Result -->
+  <div class="screen" id="screenResult">
+    <div class="result" id="resultContent"></div>
+    <div class="stats-section">
+      <h3>📊 全校参与统计 <span id="cloudTotal" style="font-weight:400;font-size:12px;color:var(--text-light);"></span></h3>
+      <div class="stats-list" id="cloudStatsList"><p style="text-align:center;color:var(--text-lighter);font-size:12px;">加载中…</p></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+// DATA: 9 Personality Types
+// ============================================================
+const PERSONALITIES = [
+  { id:'baogan',   name:'爆肝狮', emoji:'🔥', traits:'DDL战神，凌晨常驻工作室，永远还有一个版本要改。你相信好作品是"肝"出来的。', keywords:['熬夜','坚持','投入'], message:'深夜的灯，是宿舍里最温暖的陪伴。和你做室友，不用担心ddl没人陪。', color:'#FF4757', bgLight:'#FFF5F5' },
+  { id:'chuangyi', name:'创意狮', emoji:'💡', traits:'灵感丰富，想法很多，喜欢探索新方向。你的大脑像一个永不枯竭的创意工厂。', keywords:['创意','表达','灵感'], message:'宿舍因为你的奇思妙想而不再无聊。', color:'#FFA502', bgLight:'#FFF8F0' },
+  { id:'juanwang', name:'卷王狮', emoji:'📈', traits:'比赛积极分子，绩点管理大师，目标明确。每一步都走得扎实而坚定。', keywords:['自律','成长','进步'], message:'和你做室友，会不知不觉变得更优秀。', color:'#5352ED', bgLight:'#F5F5FF' },
+  { id:'sheniu',   name:'社牛狮', emoji:'🤝', traits:'团队核心，活动达人，人脉广泛。你天生就是连接者。', keywords:['合作','人脉','沟通'], message:'有你在的宿舍，永远不会冷清。', color:'#2ED573', bgLight:'#F5FFF8' },
+  { id:'danding',  name:'淡定狮', emoji:'🧘', traits:'情绪稳定，遇事不慌，永远有自己的节奏。在焦虑弥漫的研究生生活中，你是那股清流。', keywords:['从容','节奏','治愈'], message:'你是宿舍的定海神针，和谁住都能处得来。', color:'#1E90FF', bgLight:'#F5F9FF' },
+  { id:'quanneng', name:'全能狮', emoji:'⭐', traits:'各方面均衡发展，能适应不同任务，综合能力强。你是任何团队都离不开的多面手。', keywords:['全面','协调','可靠'], message:'万能室友本人！和你住一起什么都不用担心。', color:'#A855F7', bgLight:'#FDF5FF' },
+  { id:'xijie',    name:'细节狮', emoji:'🔍', traits:'像素级追求，完美主义，精益求精。每一个微小的调整，都是对品质的执着。', keywords:['精准','耐心','极致'], message:'宿舍因为你而整洁有序，干净到让人感动。', color:'#636E72', bgLight:'#F5F6F7' },
+  { id:'moyu',     name:'摸鱼狮', emoji:'🐟', traits:'劳逸结合，效率至上，聪明地工作。用最高效的方式完成任务，然后优雅地享受生活。', keywords:['高效','聪明','平衡'], message:'懂生活、不焦虑——你是理想室友的标准答案。', color:'#00BCD4', bgLight:'#F5FDFF' },
+  { id:'lingdao',  name:'领导狮', emoji:'👑', traits:'善于组织协调，带领团队前进，有担当。在关键时刻总能站出来把控全局方向。', keywords:['领导','担当','决策'], message:'宿舍大小事务交给你安排，大家都放心。', color:'#F8B500', bgLight:'#FFFCF0' }
+];
+const pMap = {}; PERSONALITIES.forEach(p => { pMap[p.id] = p; });
+
+// ============================================================
+// 9×9 Roommate Compatibility Matrix
+// ============================================================
+const COMPATIBILITY = {
+  baogan: {
+    high: ['baogan','danding','moyu'],
+    highReason: { baogan:'同为夜猫子，作息同步互不打扰', danding:'一个肝一个稳，完美互补', moyu:'都追求效率，节奏契合' },
+    caution: ['xijie','sheniu'],
+    cautionReason: { xijie:'作息和对环境整洁的标准差异较大', sheniu:'社交需求 vs 安静专注的冲突' }
+  },
+  chuangyi: {
+    high: ['sheniu','danding','quanneng'],
+    highReason: { sheniu:'创意碰撞 + 社交能量同频', danding:'淡定狮能给你稳定的情绪锚点', quanneng:'全能狮能帮你把灵感落地' },
+    caution: ['xijie','juanwang'],
+    cautionReason: { xijie:'天马行空 vs 精雕细琢，思维节奏不同', juanwang:'自由创作 vs 目标导向，生活方式不同' }
+  },
+  juanwang: {
+    high: ['juanwang','lingdao','xijie'],
+    highReason: { juanwang:'互相激励，一起变强', lingdao:'领导狮能帮你看到更大的格局', xijie:'都追求高标准，互相认可' },
+    caution: ['moyu','danding'],
+    cautionReason: { moyu:'节奏差异大，容易互相不理解', danding:'进取型 vs 随遇而安，生活态度不同' }
+  },
+  sheniu: {
+    high: ['chuangyi','sheniu','lingdao'],
+    highReason: { chuangyi:'创意狮的灵感让社交更精彩', sheniu:'两人一起把宿舍变成社交中心', lingdao:'社交达人 + 组织者，黄金搭档' },
+    caution: ['xijie','baogan'],
+    cautionReason: { xijie:'热闹 vs 安静的核心需求冲突', baogan:'社交 vs 独处充电，节奏不匹配' }
+  },
+  danding: {
+    high: ['moyu','quanneng','baogan','chuangyi','xijie'],
+    highReason: { moyu:'都追求松弛感，在一起很舒服', quanneng:'平衡组合，互相补位', baogan:'你是爆肝狮的稳定港湾', chuangyi:'给创意狮提供情绪地基', xijie:'以柔克刚，化解细节焦虑' },
+    caution: [],
+    cautionReason: {}
+  },
+  quanneng: {
+    high: ['baogan','chuangyi','juanwang','sheniu','danding','xijie','moyu','lingdao'],
+    highReason: { baogan:'适应性强，配谁都合拍', chuangyi:'适应性强，配谁都合拍', juanwang:'适应性强，配谁都合拍', sheniu:'适应性强，配谁都合拍', danding:'适应性强，配谁都合拍', xijie:'适应性强，配谁都合拍', moyu:'适应性强，配谁都合拍', lingdao:'适应性强，配谁都合拍' },
+    caution: [],
+    cautionReason: {}
+  },
+  xijie: {
+    high: ['juanwang','xijie','danding'],
+    highReason: { juanwang:'一个重过程一个重结果，互补又互敬', xijie:'互相理解彼此的讲究', danding:'淡定狮的松弛感缓解完美主义焦虑' },
+    caution: ['moyu','sheniu'],
+    cautionReason: { moyu:'整洁标准和生活习惯差异较大', sheniu:'安静专注 vs 社交活跃的需求冲突' }
+  },
+  moyu: {
+    high: ['danding','quanneng','baogan'],
+    highReason: { danding:'都懂生活，节奏舒服', quanneng:'全能狮让你的效率如虎添翼', baogan:'你定策略，爆肝狮出体力，绝配' },
+    caution: ['juanwang','xijie'],
+    cautionReason: { juanwang:'生活节奏和学习态度差异大', xijie:'松弛 vs 讲究，日常习惯容易摩擦' }
+  },
+  lingdao: {
+    high: ['sheniu','quanneng','juanwang'],
+    highReason: { sheniu:'领导力 + 社交力，宿舍事务轻松搞定', quanneng:'靠谱组合，什么都能安排明白', juanwang:'都有目标感，能一起规划研究生生活' },
+    caution: ['baogan'],
+    cautionReason: { baogan:'领导狮喜欢统筹，爆肝狮喜欢独行，合作方式不同' }
+  }
+};
+
+// ============================================================
+// DATA: 10 Quiz Questions
+// ============================================================
+const QUESTIONS = [
+  { q:'截止日期前三天，你发现有个大问题。怎么办？', options:[
+    {text:'通宵重做，三天够用了 🔥',type:'baogan'},{text:'先分析问题根源，想清楚再动手 🧐',type:'lingdao'},{text:'冷静评估能改多少改多少，不慌 🧘',type:'danding'},{text:'换个角度重新构思，说不定因祸得福 💡',type:'chuangyi'}
+  ]},
+  { q:'小组讨论时，你通常是？', options:[
+    {text:'话最多的那个，带气氛、抛想法 🎉',type:'sheniu'},{text:'把控讨论方向，适时拍板做决策 👑',type:'lingdao'},{text:'话不多，一开口就指出关键细节问题 🔍',type:'xijie'},{text:'安静听着，心里已想好怎么最高效搞定 🐟',type:'moyu'}
+  ]},
+  { q:'翻看大学期间的成果，你最不满意的短板是？', options:[
+    {text:'执行做得不错，但整体概念不够大胆',type:'xijie'},{text:'想法挺炸的，但细节经不起推敲 🤔',type:'chuangyi'},{text:'各方面都还行，但没啥特别出彩的 ⭐',type:'quanneng'},{text:'数量够了，但单件质量还能更高 📈',type:'juanwang'}
+  ]},
+  { q:'深夜只剩你一个还在学习/工作。你其实在？', options:[
+    {text:'越晚越有状态，今晚必须肝完这版 🔥',type:'baogan'},{text:'就剩最后一个小地方想再打磨一下…',type:'xijie'},{text:'刚才和同学聊天太嗨，现在才开始正经干活 😅',type:'sheniu'},{text:'享受一个人的安静时光，慢慢做不急 🧘',type:'danding'}
+  ]},
+  { q:'看到同学拿了一个大奖/发了顶刊，你的第一反应？', options:[
+    {text:'立刻搜索比赛信息：这个我也能报！📈',type:'juanwang'},{text:'仔细研究TA的作品，学习创意思路 💡',type:'chuangyi'},{text:'马上发微信恭喜，顺便请教经验 🤝',type:'sheniu'},{text:'真厉害👏…然后继续按自己节奏来 🐟',type:'moyu'}
+  ]},
+  { q:'导师当众批评了你的成果/方案，你的真实反应是？', options:[
+    {text:'追问具体问题在哪，列清单回去改 👑',type:'lingdao'},{text:'听完点点头，内心其实没啥波澜 🧘',type:'danding'},{text:'表面平静，内心：今晚就肝一版新的给他看 🔥',type:'baogan'},{text:'默默记下每一个批评点，回去逐一修正 🔍',type:'xijie'}
+  ]},
+  { q:'聚餐时，你一般在做什么？', options:[
+    {text:'满场跑，争取和每个人都聊一圈 🎉',type:'sheniu'},{text:'组织大家拍照、发言，确保没人被冷落 👑',type:'lingdao'},{text:'找个舒服角落，和几个好朋友安静吃饭 🐟',type:'moyu'},{text:'拍照、聊天、吃菜每样都参与一点，自然切换 ⭐',type:'quanneng'}
+  ]},
+  { q:'专业能力上，你最想补哪块短板？', options:[
+    {text:'技法还行，但想法不够炸 💡',type:'chuangyi'},{text:'太纠结细节了，有时候看不到大局 🔍',type:'xijie'},{text:'太功利了，设计里少了点松弛感 📈',type:'juanwang'},{text:'什么都会一点，但什么都不够精 ⭐',type:'quanneng'}
+  ]},
+  { q:'选课题/研究方向时，你最看重什么？', options:[
+    {text:'能不能让想象力彻底放飞 💡',type:'chuangyi'},{text:'能不能高效做出扎实的好成果 🐟',type:'moyu'},{text:'能不能全面展示所学 ⭐',type:'quanneng'},{text:'导师认不认可，方向稳不稳 📈',type:'juanwang'}
+  ]},
+  { q:'你理想中的宿舍氛围是？', options:[
+    {text:'热闹温馨，经常一起聊天聚会 🤝',type:'sheniu'},{text:'安静有序，各自专注互不干扰 🔥',type:'baogan'},{text:'松弛自在，随意就好不强求 🧘',type:'danding'},{text:'高效整洁，有规则有默契 🐟',type:'moyu'}
+  ]}
+];
+
+// ============================================================
+// STATE
+// ============================================================
+let currentQuestion = 0;
+let scores = {};
+let answers = [];
+let resultType = null;
+let userInfo = {};       // {name, studentId, department, gender, phone}
+let hasRoommate = false;
+let roommateName = '';
+let quizTaken = false;   // whether the quiz was actually taken
+
+// ============================================================
+// IMAGE HELPERS
+// ============================================================
+const IMG_BASE = "https://lgzqpzuabievqgkfesxk.supabase.co/storage/v1/object/public/lions";
+function lionImg(id) { return IMG_BASE + "/" + id + ".png"; }
+function lionImgTiny(id) { return IMG_BASE + "/" + id + "_tiny.png"; }
+
+// ============================================================
+// SUPABASE CONFIG
+// ============================================================
+const SUPABASE_URL = 'https://lgzqpzuabievqgkfesxk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_LwiwL-wZes1_8XuWlLToRg_ANSiPoUE';
+const API = SUPABASE_URL + '/rest/v1/roommate_results';
+
+// ============================================================
+// SCREEN MANAGEMENT
+// ============================================================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById('screen' + name);
+  if (target) target.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ============================================================
+// FLOW
+// ============================================================
+function startFlow() {
+  showScreen('Info');
+}
+
+function submitInfo() {
+  const name = document.getElementById('fName').value.trim();
+  const studentId = document.getElementById('fStudentId').value.trim();
+  const dept = document.getElementById('fDept').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const genderEl = document.querySelector('input[name="gender"]:checked');
+  const gender = genderEl ? genderEl.value : '';
+
+  // Validate
+  let valid = true;
+  if (!name) { showToast('请输入姓名'); valid = false; }
+  if (!studentId) { showToast('请输入学号'); valid = false; }
+  if (!dept) { showToast('请输入专业'); valid = false; }
+  if (!gender) { showToast('请选择性别'); valid = false; }
+  if (!phone || !/^1\d{10}$/.test(phone)) {
+    document.getElementById('errPhone').style.display = 'block';
+    valid = false;
+  } else {
+    document.getElementById('errPhone').style.display = 'none';
+  }
+  if (!valid) return;
+
+  userInfo = { name, studentId, department: dept, gender, phone };
+
+  // Check if already submitted (duplicate student_id)
+  checkDuplicate(studentId).then(isDup => {
+    if (isDup) {
+      showToast('该学号已提交过，请勿重复提交');
+      return;
+    }
+    showScreen('PreCheck');
+  });
+}
+
+async function checkDuplicate(studentId) {
+  try {
+    const res = await fetch(API + '?select=student_id&student_id=eq.' + encodeURIComponent(studentId), {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.length > 0;
+  } catch(e) { return false; }
+}
+
+function showRoommateForm() {
+  hasRoommate = true;
+  showScreen('HasRoommate');
+}
+
+function submitHasRoommate() {
+  const name = document.getElementById('fRoommateName').value.trim();
+  if (!name) { showToast('请输入室友姓名'); return; }
+  roommateName = name;
+
+  // Save to cloud: has_roommate=true, no quiz
+  saveToCloud(null);
+
+  // Show done
+  document.querySelector('#screenHasRoommate .form-card').style.display = 'none';
+  document.getElementById('doneCard').style.display = 'block';
+}
+
+function skipToQuiz() {
+  // User has roommate but wants to take quiz for fun
+  // hasRoommate stays true, but we let them take the quiz
+  if (!quizTaken) {
+    startQuiz();
+  }
+}
+
+function startQuiz() {
+  if (!userInfo.name) {
+    // If came from skipToQuiz, info might already be collected
+    // Actually skipToQuiz is from hasRoommate flow, info is already collected
+  }
+  currentQuestion = 0;
+  scores = {};
+  answers = [];
+  PERSONALITIES.forEach(p => { scores[p.id] = 0; });
+  resultType = null;
+  quizTaken = true;
+  showScreen('Quiz');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = QUESTIONS[currentQuestion];
+  const total = QUESTIONS.length;
+  const pct = Math.round((currentQuestion / total) * 100);
+  document.getElementById('quizProgressLabel').textContent = `第 ${currentQuestion + 1}/${total} 题`;
+  document.getElementById('quizPercent').textContent = pct + '%';
+  document.getElementById('quizProgressFill').style.width = pct + '%';
+  document.getElementById('qNum').textContent = `QUESTION ${currentQuestion + 1}`;
+  document.getElementById('qText').textContent = q.q;
+
+  const prevAnswer = answers.find(a => a.qIndex === currentQuestion);
+  const letters = ['A','B','C','D'];
+  const optionsHtml = q.options.map((opt,i) => {
+    const selected = prevAnswer && prevAnswer.type === opt.type ? ' selected' : '';
+    return `<button class="quiz-option${selected}" onclick="selectAnswer('${opt.type}',this)" data-type="${opt.type}"><span class="opt-letter">${letters[i]}</span><span>${opt.text}</span></button>`;
+  }).join('');
+  document.getElementById('qOptions').innerHTML = optionsHtml;
+  document.getElementById('btnBack').style.display = currentQuestion > 0 ? 'block' : 'none';
+
+  const card = document.getElementById('quizCard');
+  card.style.opacity = '0'; card.style.transform = 'translateY(12px)';
+  requestAnimationFrame(() => {
+    card.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    card.style.opacity = '1'; card.style.transform = 'translateY(0)';
+  });
+}
+
+function selectAnswer(type, btnEl) {
+  document.querySelectorAll('.quiz-option').forEach(b => b.classList.remove('selected'));
+  btnEl.classList.add('selected');
+  const existingIdx = answers.findIndex(a => a.qIndex === currentQuestion);
+  if (existingIdx >= 0) {
+    const removed = answers.splice(existingIdx);
+    removed.forEach(a => { scores[a.type] = Math.max(0, (scores[a.type]||1)-1); });
+  }
+  answers.push({ qIndex: currentQuestion, type: type });
+  scores[type] = (scores[type]||0) + 1;
+  document.querySelectorAll('.quiz-option').forEach(b => b.style.pointerEvents = 'none');
+  setTimeout(() => {
+    currentQuestion++;
+    if (currentQuestion >= QUESTIONS.length) { finishQuiz(); }
+    else { renderQuestion(); updateProgress(); }
+  }, 350);
+}
+
+function goBack() {
+  if (currentQuestion <= 0) return;
+  currentQuestion--;
+  renderQuestion();
+  updateProgress();
+}
+
+function updateProgress() {
+  const pct = Math.round((currentQuestion / QUESTIONS.length) * 100);
+  document.getElementById('quizProgressFill').style.width = pct + '%';
+  document.getElementById('quizProgressLabel').textContent = `第 ${currentQuestion + 1}/${QUESTIONS.length} 题`;
+  document.getElementById('quizPercent').textContent = pct + '%';
+}
+
+function finishQuiz() {
+  document.getElementById('quizProgressFill').style.width = '100%';
+  document.getElementById('quizPercent').textContent = '100%';
+  let maxScore = -1, topTypes = [];
+  PERSONALITIES.forEach(p => {
+    const s = scores[p.id]||0;
+    if (s > maxScore) { maxScore = s; topTypes = [p.id]; }
+    else if (s === maxScore) { topTypes.push(p.id); }
+  });
+  resultType = topTypes.includes('quanneng') ? 'quanneng' : topTypes[0];
+  saveToCloud(resultType);
+  showResult(resultType);
+}
+
+// ============================================================
+// RESULT DISPLAY (with compatibility)
+// ============================================================
+function showResult(typeId) {
+  const p = pMap[typeId];
+  const compat = COMPATIBILITY[typeId];
+  document.documentElement.style.setProperty('--accent', p.color);
+
+  // Compatible types
+  const highHtml = compat.high.filter(id => id !== typeId).map(id => {
+    const cp = pMap[id];
+    return `<div class="compat-row"><img src="${lionImgTiny(id)}" alt="${cp.name}"><div class="c-info"><div class="c-name">${cp.emoji} ${cp.name}</div><div class="c-reason">${compat.highReason[id]||'性格互补，生活习惯契合'}</div></div></div>`;
+  }).join('') || '<p style="font-size:13px;color:var(--text-lighter);">你本身就是万能室友！和谁都合得来 🎉</p>';
+
+  // Caution types
+  const cautionHtml = compat.caution.length > 0 ? compat.caution.map(id => {
+    const cp = pMap[id];
+    return `<div class="caution-row"><img src="${lionImgTiny(id)}" alt="${cp.name}"><div class="c-info"><div class="c-name">${cp.emoji} ${cp.name}</div><div class="c-reason">${compat.cautionReason[id]||'生活习惯可能有差异'}</div></div></div>`;
+  }).join('') : '<p style="font-size:13px;color:#38B2AC;">没有明显的冲突类型！你和大多数人都能相处愉快 🎉</p>';
+
+  const hasRoommateNote = hasRoommate ? `<p style="font-size:12px;color:#E53E3E;margin-top:4px;">⚠️ 你已登记为"已有室友（${roommateName}）"，不会纳入匹配池</p>` : '';
+
+  const html = `
+    <img src="${lionImg(typeId)}" alt="${p.name}" style="width:140px;height:auto;animation:resultBounce 0.6s ease;">
+    <div class="result-type-name" style="color:${p.color}">${p.name}</div>
+    ${hasRoommateNote}
+    <div class="result-card">
+      <p style="font-size:14px;color:var(--text-light);margin-bottom:12px;">${p.traits}</p>
+      <div class="result-tags">${p.keywords.map(k => `<span class="result-tag" style="background:${p.color}">${k}</span>`).join('')}</div>
+    </div>
+    <div class="result-message" style="border-left-color:${p.color};background:${p.bgLight}">💬 "${p.message}"</div>
+    <div class="result-card">
+      <div class="section-title">🏠 推荐室友类型</div>
+      ${highHtml}
+    </div>
+    <div class="result-card">
+      <div class="section-title" style="color:#E53E3E;">⚠️ 需谨慎搭配</div>
+      ${cautionHtml}
+    </div>
+    <p class="note">以上推荐仅供参考，室友相处更看重互相理解和包容。<br>最终分配以学院安排为准。</p>
+    <div class="btn-group">
+      <button class="btn btn-outline btn-sm" onclick="resetQuiz()" style="color:${p.color};border-color:${p.color};">🔄 重新测试</button>
+    </div>
+  `;
+  document.getElementById('resultContent').innerHTML = html;
+  showScreen('Result');
+  renderCloudStats();
+}
+
+function resetQuiz() {
+  startQuiz();
+}
+
+// ============================================================
+// CLOUD SAVE + STATS
+// ============================================================
+async function saveToCloud(typeId) {
+  try {
+    const body = {
+      name: userInfo.name,
+      student_id: userInfo.studentId,
+      department: userInfo.department,
+      gender: userInfo.gender,
+      phone: userInfo.phone,
+      has_roommate: hasRoommate,
+      roommate_name: hasRoommate ? roommateName : null,
+      personality_type: typeId || null,
+      scores: typeId ? JSON.stringify(scores) : null
+    };
+    const res = await fetch(API, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    console.log('☁️ 提交成功');
+  } catch(e) { console.warn('云端提交失败:', e.message); }
+}
+
+async function getCloudStats() {
+  try {
+    const res = await fetch(API + '?select=personality_type&personality_type=not.is.null', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const counts = {}; PERSONALITIES.forEach(p => { counts[p.id] = 0; });
+    data.forEach(r => { if (counts[r.personality_type] !== undefined) counts[r.personality_type]++; });
+    const total = data.length || 1;
+    const list = PERSONALITIES.map(p => ({ ...p, count: counts[p.id]||0 })).sort((a,b) => b.count - a.count);
+    return { list, total };
+  } catch(e) { return null; }
+}
+
+async function renderCloudStats() {
+  const el = document.getElementById('cloudStatsList');
+  const totalEl = document.getElementById('cloudTotal');
+  el.innerHTML = '<p style="text-align:center;color:var(--text-lighter);">加载中…</p>';
+  const data = await getCloudStats();
+  if (!data) { el.innerHTML = '<p style="text-align:center;color:var(--text-lighter);font-size:12px;">暂无数据</p>'; return; }
+  const { list, total } = data;
+  if (totalEl) totalEl.textContent = `共 ${total} 人参与`;
+  const maxCount = list[0]?.count || 1;
+  el.innerHTML = list.map(p => {
+    const pct = Math.round((p.count/total)*100);
+    const barW = maxCount>0 ? Math.max(2,Math.round((p.count/maxCount)*100)) : 0;
+    return `<div class="stats-row"><img src="${lionImgTiny(p.id)}" alt="${p.name}" style="width:24px;height:24px;flex-shrink:0;"><span class="s-name">${p.name}</span><span class="s-bar-wrap"><span class="s-bar" style="width:${barW}%;background:${p.color}"></span></span><span class="s-count">${p.count}人 (${pct}%)</span></div>`;
+  }).join('');
+}
+
+// ============================================================
+// ADMIN PANEL (Export CSV)
+// ============================================================
+const ADMIN_PASSWORD = 'shehuizhuyi2026';
+
+function promptAdmin() {
+  const pw = prompt('请输入管理密码：');
+  if (pw !== ADMIN_PASSWORD) {
+    if (pw) showToast('密码错误');
+    return;
+  }
+  openAdmin();
+}
+
+function closeAdmin() {
+  document.getElementById('adminOverlay').classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+function openAdmin() {
+  document.getElementById('adminOverlay').classList.add('show');
+  document.body.style.overflow = 'hidden';
+  loadAdminData();
+}
+
+async function loadAdminData() {
+  const panel = document.getElementById('adminPanel');
+  panel.innerHTML = '<h2>🔧 数据管理</h2><p style="color:var(--text-light);">加载中…</p>';
+  try {
+    const res = await fetch(API + '?select=*&order=created_at.desc&limit=5000', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.length === 0) {
+      panel.innerHTML = '<h2>🔧 数据管理</h2><p>暂无数据</p><button class="btn btn-outline btn-sm" onclick="closeAdmin()">关闭</button>';
+      return;
+    }
+    const total = data.length;
+    const testedCount = data.filter(r => r.personality_type).length;
+    const hasRoommateCount = data.filter(r => r.has_roommate).length;
+    const needMatchCount = data.filter(r => !r.has_roommate && r.personality_type).length;
+
+    // Count by personality for those who need matching
+    const typeCounts = {};
+    PERSONALITIES.forEach(p => { typeCounts[p.id] = 0; });
+    data.filter(r => !r.has_roommate && r.personality_type).forEach(r => {
+      if (typeCounts[r.personality_type] !== undefined) typeCounts[r.personality_type]++;
+    });
+
+    const summaryHtml = `
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="background:#EBF8FF;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#3182CE;">${total}</div><div style="font-size:12px;color:var(--text-light);">总提交数</div></div>
+        <div style="background:#E6FFFA;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#38B2AC;">${needMatchCount}</div><div style="font-size:12px;color:var(--text-light);">待匹配人数</div></div>
+        <div style="background:#FFF5F5;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#E53E3E;">${hasRoommateCount}</div><div style="font-size:12px;color:var(--text-light);">已有室友</div></div>
+        <div style="background:#FAF5FF;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#9F7AEA;">${testedCount}</div><div style="font-size:12px;color:var(--text-light);">完成测试</div></div>
+      </div>
+      <h3 style="margin-bottom:8px;">待匹配学生人格分布</h3>
+      <div style="margin-bottom:16px;">
+        ${PERSONALITIES.map(p => `<span style="display:inline-block;margin:2px 4px;padding:3px 10px;border-radius:12px;font-size:12px;background:${p.bgLight};color:${p.color};font-weight:600;">${p.emoji} ${p.name}: ${typeCounts[p.id]}</span>`).join('')}
+      </div>
+    `;
+
+    // Table
+    const rows = data.map((r,i) => {
+      const pLabel = r.personality_type ? (pMap[r.personality_type]?.emoji||'') + ' ' + (pMap[r.personality_type]?.name||r.personality_type) : '未测试';
+      const rmLabel = r.has_roommate ? '是（'+ (r.roommate_name||'') +'）' : '否';
+      const time = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN') : '';
+      return `<tr>
+        <td>${i+1}</td><td>${r.name||''}</td><td>${r.student_id||''}</td><td>${r.department||''}</td><td>${r.gender||''}</td><td>${r.phone||''}</td><td>${rmLabel}</td><td>${pLabel}</td><td>${time}</td>
+      </tr>`;
+    }).join('');
+
+    panel.innerHTML = `
+      <h2>🔧 数据管理后台</h2>
+      ${summaryHtml}
+      <div class="admin-bar">
+        <button class="btn btn-primary btn-sm" onclick="downloadCSV()">📥 下载原始数据</button>
+        <button class="btn btn-primary btn-sm" onclick="runDormAssignment()" style="background:linear-gradient(135deg,#38B2AC,#2B6CB0);">🏠 开始分配宿舍</button>
+        <button class="btn btn-outline btn-sm" onclick="loadAdminData()">🔄 刷新</button>
+        <span style="font-size:12px;color:var(--text-lighter);">共 ${total} 条记录</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>#</th><th>姓名</th><th>学号</th><th>专业</th><th>性别</th><th>电话</th><th>已有室友</th><th>人格类型</th><th>提交时间</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <button class="btn btn-outline btn-sm" style="margin-top:16px;" onclick="closeAdmin()">关闭</button>
+    `;
+
+    // Store data for CSV export
+    window._adminData = data;
+  } catch(e) {
+    panel.innerHTML = `<h2>🔧 数据管理</h2><p style="color:#E53E3E;">加载失败: ${e.message}</p><button class="btn btn-outline btn-sm" onclick="closeAdmin()">关闭</button>`;
+  }
+}
+
+function downloadCSV() {
+  const data = window._adminData || [];
+  if (!data.length) { showToast('暂无数据'); return; }
+  const headers = ['序号','姓名','学号','专业','性别','手机号','已有室友','室友姓名','人格类型','人格名称','提交时间'];
+  const rows = data.map((r,i) => {
+    const pName = r.personality_type ? (pMap[r.personality_type]?.name||'') : '';
+    const time = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN') : '';
+    return [i+1, r.name||'', r.student_id||'', r.department||'', r.gender||'', r.phone||'', r.has_roommate?'是':'否', r.roommate_name||'', r.personality_type||'', pName, time];
+  });
+  // BOM for Excel UTF-8
+  const BOM = '﻿';
+  const csv = BOM + [headers,...rows].map(row => row.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const now = new Date().toISOString().slice(0,10);
+  a.download = `宿舍室友匹配数据_${now}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV 已下载！');
+}
+
+// ============================================================
+// DORM ASSIGNMENT (4-person rooms)
+// ============================================================
+function pairCompatScore(typeA, typeB) {
+  if (typeA === typeB) return 3;
+  const compat = COMPATIBILITY[typeA];
+  if (!compat) return 1;
+  if (compat.high.includes(typeB)) return 3;
+  if (compat.caution.includes(typeB)) return 0;
+  return 1;
+}
+
+function assignRooms(students) {
+  // students: [{name, student_id, department, gender, personality_type, phone}]
+  if (students.length === 0) return [];
+
+  // Separate by gender
+  const male = students.filter(s => s.gender === '男');
+  const female = students.filter(s => s.gender === '女');
+
+  function greedyGroup(group) {
+    const remaining = [...group];
+    const rooms = [];
+
+    while (remaining.length >= 4) {
+      // Calculate each person's total compatibility with remaining pool
+      const scores = remaining.map((p, i) => {
+        let total = 0;
+        remaining.forEach((q, j) => {
+          if (i !== j) total += pairCompatScore(p.personality_type, q.personality_type);
+        });
+        return { person: p, index: i, total };
+      });
+
+      // Pick hardest-to-match (lowest total compat) first
+      scores.sort((a, b) => a.total - b.total);
+      const seed = scores[0].person;
+      const seedIdx = remaining.indexOf(seed);
+
+      // Find top 3 most compatible people for seed
+      const candidates = remaining
+        .map((p, i) => ({ person: p, index: i, score: i === seedIdx ? -1 : pairCompatScore(seed.personality_type, p.personality_type) }))
+        .filter(c => c.score >= 0)
+        .sort((a, b) => b.score - a.score);
+
+      const room = [seed];
+      const taken = new Set([seedIdx]);
+
+      for (const c of candidates) {
+        if (room.length >= 4) break;
+        if (!taken.has(c.index)) {
+          // Check compatibility with all existing room members
+          const minCompat = Math.min(...room.map(r => pairCompatScore(r.personality_type, c.person.personality_type)));
+          if (minCompat >= 1) {
+            room.push(c.person);
+            taken.add(c.index);
+          }
+        }
+      }
+
+      // If we couldn't fill to 4 with compat>=1, relax constraint
+      if (room.length < 4) {
+        for (const c of candidates) {
+          if (room.length >= 4) break;
+          if (!taken.has(c.index)) {
+            room.push(c.person);
+            taken.add(c.index);
+          }
+        }
+      }
+
+      // Calculate room score
+      let roomScore = 0;
+      for (let i = 0; i < room.length; i++) {
+        for (let j = i + 1; j < room.length; j++) {
+          roomScore += pairCompatScore(room[i].personality_type, room[j].personality_type);
+        }
+      }
+
+      rooms.push({ members: room, score: roomScore, maxScore: room.length * (room.length - 1) / 2 * 3 });
+
+      // Remove assigned students from remaining (reverse order)
+      const sortedTaken = [...taken].sort((a, b) => b - a);
+      for (const idx of sortedTaken) remaining.splice(idx, 1);
+    }
+
+    return { rooms, leftover: remaining };
+  }
+
+  const maleResult = greedyGroup(male);
+  const femaleResult = greedyGroup(female);
+
+  // Handle leftovers: try to merge into existing rooms
+  function handleLeftovers(result) {
+    if (result.leftover.length === 0) return result;
+
+    // Try to add leftovers to existing rooms (max 5 per room)
+    const leftovers = [...result.leftover];
+    for (const l of leftovers) {
+      let bestRoom = null, bestScore = -1;
+      for (const room of result.rooms) {
+        if (room.members.length >= 5) continue;
+        const minCompat = Math.min(...room.members.map(r => pairCompatScore(r.personality_type, l.personality_type)));
+        if (minCompat > bestScore) {
+          bestScore = minCompat;
+          bestRoom = room;
+        }
+      }
+      if (bestRoom) {
+        bestRoom.members.push(l);
+      } else {
+        // Can't fit anywhere, make a small room
+        result.rooms.push({ members: [l], score: 0, maxScore: 0 });
+      }
+    }
+    result.leftover = [];
+    return result;
+  }
+
+  handleLeftovers(maleResult);
+  handleLeftovers(femaleResult);
+
+  return { male: maleResult.rooms, female: femaleResult.rooms };
+}
+
+async function runDormAssignment() {
+  const panel = document.getElementById('adminPanel');
+  panel.innerHTML = '<h2>🏠 宿舍分配中…</h2><p style="color:var(--text-light);">正在拉取数据并计算最优分配…</p>';
+
+  try {
+    const res = await fetch(API + '?select=*&order=created_at.desc&limit=5000', {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const allData = await res.json();
+
+    // Filter: need matching (has_roommate=false, has personality_type)
+    const toMatch = allData.filter(r => !r.has_roommate && r.personality_type);
+    const excluded = allData.filter(r => r.has_roommate);
+
+    if (toMatch.length === 0) {
+      panel.innerHTML = '<h2>🏠 宿舍分配</h2><p style="color:#E53E3E;">没有可匹配的学生（所有人都已选好室友或未完成测试）</p><button class="btn btn-outline btn-sm" onclick="loadAdminData()">← 返回</button>';
+      return;
+    }
+
+    const result = assignRooms(toMatch);
+    const allRooms = [...result.male, ...result.female];
+    const totalRooms = allRooms.length;
+    const totalAssigned = allRooms.reduce((sum, r) => sum + r.members.length, 0);
+
+    // Build display
+    function roomCard(room, idx, genderLabel) {
+      const types = room.members.map(m => {
+        const p = pMap[m.personality_type];
+        return `<span style="display:inline-block;margin:2px;padding:2px 8px;border-radius:10px;font-size:11px;background:${p.bgLight};color:${p.color};font-weight:600;">${p.emoji} ${p.name}</span>`;
+      }).join('');
+
+      const rows = room.members.map((m, i) => {
+        const p = pMap[m.personality_type];
+        return `<tr>
+          <td>${i+1}</td><td>${m.name}</td><td>${m.student_id}</td><td>${m.department||''}</td><td>${p.emoji} ${p.name}</td><td>${m.phone||''}</td>
+        </tr>`;
+      }).join('');
+
+      const compatPercent = room.maxScore > 0 ? Math.round(room.score / room.maxScore * 100) : 100;
+      const level = compatPercent >= 80 ? '🟢 高' : compatPercent >= 60 ? '🟡 中' : '🔴 低';
+      const note = room.members.length < 4 ? ' ⚠️不足4人' : room.members.length > 4 ? ' ⚠️超员' : '';
+
+      return `
+        <div style="background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.06);border-left:4px solid ${compatPercent >= 80 ? '#38B2AC' : compatPercent >= 60 ? '#ED8936' : '#E53E3E'};">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+            <strong style="font-size:16px;">🏠 ${genderLabel}${idx + 1}号宿舍${note}</strong>
+            <span style="font-size:12px;color:var(--text-light);">兼容度: ${level} (${compatPercent}%) · ${room.members.length}人</span>
+          </div>
+          <div style="margin-bottom:8px;">${types}</div>
+          <table class="admin-table" style="margin-top:8px;">
+            <thead><tr><th>#</th><th>姓名</th><th>学号</th><th>专业</th><th>人格</th><th>电话</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+    }
+
+    const maleHtml = result.male.length > 0 ? `
+      <h3 style="margin:20px 0 12px;color:#3182CE;">👦 男生宿舍 (${result.male.length}间 · ${result.male.reduce((s,r)=>s+r.members.length,0)}人)</h3>
+      ${result.male.map((r,i) => roomCard(r, i, '男')).join('')}
+    ` : `<p style="margin:16px 0;color:var(--text-lighter);">无男生数据</p>`;
+
+    const femaleHtml = result.female.length > 0 ? `
+      <h3 style="margin:20px 0 12px;color:#E53E3E;">👧 女生宿舍 (${result.female.length}间 · ${result.female.reduce((s,r)=>s+r.members.length,0)}人)</h3>
+      ${result.female.map((r,i) => roomCard(r, i, '女')).join('')}
+    ` : `<p style="margin:16px 0;color:var(--text-lighter);">无女生数据</p>`;
+
+    panel.innerHTML = `
+      <h2>🏠 宿舍分配结果</h2>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;">
+        <div style="background:#EBF8FF;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#3182CE;">${totalRooms}</div><div style="font-size:11px;color:var(--text-light);">总宿舍数</div></div>
+        <div style="background:#E6FFFA;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#38B2AC;">${totalAssigned}</div><div style="font-size:11px;color:var(--text-light);">已分配人数</div></div>
+        <div style="background:#FFF5F5;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#E53E3E;">${excluded.length}</div><div style="font-size:11px;color:var(--text-light);">已排除(有室友)</div></div>
+      </div>
+      <div class="admin-bar">
+        <button class="btn btn-primary btn-sm" onclick="downloadRoomCSV()">📥 下载分配表</button>
+        <button class="btn btn-outline btn-sm" onclick="loadAdminData()">← 返回数据管理</button>
+      </div>
+      ${maleHtml}
+      ${femaleHtml}
+      <button class="btn btn-outline btn-sm" style="margin-top:12px;" onclick="downloadRoomCSV()">📥 下载分配表 (CSV)</button>
+      <button class="btn btn-outline btn-sm" style="margin-left:8px;" onclick="loadAdminData()">← 返回</button>
+    `;
+
+    // Store for CSV
+    window._roomData = { male: result.male, female: result.female, excluded };
+  } catch(e) {
+    panel.innerHTML = `<h2>🏠 宿舍分配</h2><p style="color:#E53E3E;">加载失败: ${e.message}</p><button class="btn btn-outline btn-sm" onclick="loadAdminData()">← 返回</button>`;
+  }
+}
+
+function downloadRoomCSV() {
+  const data = window._roomData;
+  if (!data) { showToast('请先执行分配'); return; }
+  const headers = ['宿舍号','性别','序号','姓名','学号','专业','人格类型','电话','兼容度'];
+  const rows = [];
+
+  function addRooms(rooms, gender) {
+    rooms.forEach((room, i) => {
+      const compatPercent = room.maxScore > 0 ? Math.round(room.score / room.maxScore * 100) : 100;
+      room.members.forEach((m, j) => {
+        const pName = pMap[m.personality_type]?.name || '';
+        rows.push([`${gender}${i+1}号`, gender, j+1, m.name, m.student_id, m.department||'', `${pMap[m.personality_type]?.emoji||''} ${pName}`, m.phone||'', compatPercent+'%']);
+      });
+      // Empty row between rooms
+      if (i < rooms.length - 1) rows.push(['','','','','','','','','']);
+    });
+  }
+
+  addRooms(data.male, '男');
+  rows.push(['','','','','','','','','']);
+  addRooms(data.female, '女');
+
+  // Add excluded students
+  if (data.excluded.length > 0) {
+    rows.push(['','','','','','','','','']);
+    rows.push(['=== 已排除学生（已有室友）===','','','','','','','','']);
+    data.excluded.forEach((r, i) => {
+      rows.push(['已排除', '', i+1, r.name, r.student_id, r.department||'', r.roommate_name||'有室友', r.phone||'', '']);
+    });
+  }
+
+  const BOM = '﻿';
+  const csv = BOM + [headers,...rows].map(row => row.map(c => '"' + String(c).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const now = new Date().toISOString().slice(0,10);
+  a.download = `宿舍分配结果_${now}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('分配表已下载！');
+}
+
+// ============================================================
+// INIT
+// ============================================================
+(function init() {
+  console.log('🦁🏠 研究生宿舍室友匹配测试 — 已就绪');
+  // Open admin via URL hash
+  if (window.location.hash === '#admin') {
+    const pw = prompt('请输入管理密码：');
+    if (pw === ADMIN_PASSWORD) { openAdmin(); }
+    else if (pw) { alert('密码错误'); }
+    window.location.hash = '';
+  }
+})();
+</script>
+</body>
+</html>
