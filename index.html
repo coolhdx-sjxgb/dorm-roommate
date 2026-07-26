@@ -431,7 +431,10 @@ function startFlow() {
   showScreen('Info');
 }
 
+let submitting = false; // prevent double-submit
+
 function submitInfo() {
+  if (submitting) return;
   const name = document.getElementById('fName').value.trim();
   const studentId = document.getElementById('fStudentId').value.trim();
   const dept = document.getElementById('fDept').value.trim();
@@ -439,7 +442,6 @@ function submitInfo() {
   const genderEl = document.querySelector('input[name="gender"]:checked');
   const gender = genderEl ? genderEl.value : '';
 
-  // Validate
   let valid = true;
   if (!name) { showToast('请输入姓名'); valid = false; }
   if (!studentId) { showToast('请输入学号'); valid = false; }
@@ -453,11 +455,12 @@ function submitInfo() {
   }
   if (!valid) return;
 
+  submitting = true;
   userInfo = { name, studentId, department: dept, gender, phone };
 
-  // Check if already submitted (duplicate student_id)
   checkDuplicate(studentId).then(isDup => {
     if (isDup) {
+      submitting = false;
       showToast('该学号已提交过，请勿重复提交');
       return;
     }
