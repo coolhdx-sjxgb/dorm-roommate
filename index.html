@@ -224,9 +224,9 @@ body {
   <!-- Screen 4: Has Roommate Form -->
   <div class="screen" id="screenHasRoommate">
     <div class="form-card" style="margin-top:16px;">
-      <h2>📝 已选室友登记</h2>
-      <p class="form-sub">登记后你将不会被纳入室友匹配池</p>
-      <div class="form-group"><label>你的室友姓名 *</label><input type="text" id="fRoommateName" placeholder="请输入室友姓名" maxlength="20"></div>
+      <h2>📝 已匹配室友登记</h2>
+      <p class="form-sub">登记后你将不会被纳入室友自动匹配</p>
+      <div class="form-group"><label>你的宿舍号 *</label><input type="text" id="fRoommateName" placeholder="如：东15-101" maxlength="20"></div>
       <button class="btn btn-primary btn-block" onclick="submitHasRoommate()" style="background:linear-gradient(135deg,#E53E3E,#ED8936);">提交登记 ✓</button>
       <button class="btn btn-outline btn-block" style="margin-top:8px;font-size:14px;" onclick="skipToQuiz()">等等，我也想顺便测一下人格 →</button>
     </div>
@@ -259,6 +259,20 @@ body {
     <div class="stats-section">
       <h3>📊 全校参与统计 <span id="cloudTotal" style="font-weight:400;font-size:12px;color:var(--text-light);"></span></h3>
       <div class="stats-list" id="cloudStatsList"><p style="text-align:center;color:var(--text-lighter);font-size:12px;">加载中…</p></div>
+    </div>
+  </div>
+
+  <!-- Screen 7: Assign Preference -->
+  <div class="screen" id="screenAssign">
+    <div class="precheck">
+      <div class="precheck-icon">🏠</div>
+      <h2>测试完成！</h2>
+      <p>最后一个问题：<br><strong>你愿意接受学院分配的舍友吗？</strong></p>
+      <div style="display:flex;flex-direction:column;gap:12px;width:100%;max-width:280px;">
+        <button class="btn btn-primary btn-block" onclick="setPreference('accept')">✅ 愿意接受分配</button>
+        <button class="btn btn-outline btn-block" onclick="setPreference('self_team')">🤝 我想自行组队</button>
+      </div>
+      <p style="font-size:11px;color:var(--text-lighter);margin-top:16px;">选择"自行组队"后，你将不会进入自动匹配池</p>
     </div>
   </div>
 
@@ -342,6 +356,53 @@ const COMPATIBILITY = {
 };
 
 // ============================================================
+// EXCLUDED LIST: 已入住/已匹配名单（按手机号识别）
+// ============================================================
+const EXCLUDED_LIST = {
+  '17771722389': { name:'郭凯铭', room:'东18-406' },
+  '17706507751': { name:'周彦然', room:'东18-406' },
+  '13587028516': { name:'徐奕', room:'东15-124' },
+  '19846719386': { name:'余甜会', room:'东15-124' },
+  '18157880659': { name:'何慧娜', room:'东15-102' },
+  '18185135605': { name:'包乾琳', room:'东15-102' },
+  '15384022419': { name:'郭可宁', room:'东15-102' },
+  '13857433461': { name:'王一煊', room:'东15-102' },
+  '18329025907': { name:'钟城浩', room:'东17-407' },
+  '19818508915': { name:'刘智星', room:'东17-407' },
+  '15355490069': { name:'宋何婉约', room:'东15-103' },
+  '15518194655': { name:'赵韩', room:'东15-103' },
+  '15942623217': { name:'许丽丽', room:'东15-103' },
+  '15212088910': { name:'陈君佳', room:'东15-103' },
+  '13806639626': { name:'孙芳', room:'东15-104' },
+  '15990179014': { name:'黄宝宏', room:'东15-104' },
+  '15988599967': { name:'章子璇', room:'东15-104' },
+  '18767208188': { name:'程序', room:'东15-104' },
+  '18838752701': { name:'王茹毅', room:'东15-105' },
+  '18671731979': { name:'甘雅琳', room:'东15-105' },
+  '18524269641': { name:'杨思远', room:'东17-407' },
+  '18858488779': { name:'陈诚', room:'东17-407' },
+  '19505852622': { name:'卞晴晴', room:'东15-105' },
+  '13757644431': { name:'林映辰', room:'东15-105' },
+  '15944463958': { name:'杜欣颖', room:'东15-111' },
+  '15167092986': { name:'朱子丹', room:'东15-111' },
+  '15838945816': { name:'贾默晗', room:'东15-111' },
+  '15328207072': { name:'李语绮', room:'东15-111' },
+  '15925608392': { name:'来敏聪', room:'东17-413' },
+  '17872877828': { name:'李广', room:'东17-413' },
+  '15868638976': { name:'王高乐', room:'东15-120' },
+  '15526247992': { name:'周彩艳', room:'东15-120' },
+  '18696744744': { name:'侯城', room:'东17-413' },
+  '13819820892': { name:'黄予萱', room:'东15-120' },
+  '18312911503': { name:'林语欣', room:'东15-120' },
+  '18357001417': { name:'杨舒钧', room:'东17-413' },
+  '19357380052': { name:'刘佳淇', room:'东15-121' },
+  '18768521284': { name:'罗予希', room:'东15-121' },
+  '19906839238': { name:'童心怡', room:'东15-121' },
+  '13380500103': { name:'陈天柔', room:'东15-124' },
+  '13758701013': { name:'叶璇', room:'东15-124' }
+};
+
+// ============================================================
 // DATA: 10 Quiz Questions
 // ============================================================
 const QUESTIONS = [
@@ -385,9 +446,10 @@ let scores = {};
 let answers = [];
 let resultType = null;
 let userInfo = {};       // {name, studentId, department, gender, phone}
-let hasRoommate = false;
-let roommateName = '';
+let hasRoommate = false; // 是否已匹配好室友/已入住
+let roommateName = '';   // 宿舍号（已匹配时填写）
 let quizTaken = false;   // whether the quiz was actually taken
+let assignPreference = null; // 'accept' = 接受分配, 'self_team' = 自行组队
 
 // ============================================================
 // IMAGE HELPERS
@@ -464,8 +526,40 @@ function submitInfo() {
       showToast('该学号已提交过，请勿重复提交');
       return;
     }
-    showScreen('PreCheck');
+    // 自动识别已入住名单
+    if (EXCLUDED_LIST[phone]) {
+      hasRoommate = true;
+      roommateName = EXCLUDED_LIST[phone].room;
+      showExcludedDetected();
+    } else {
+      showScreen('PreCheck');
+    }
   });
+}
+
+// 自动识别到已入住学生
+function showExcludedDetected() {
+  const info = EXCLUDED_LIST[userInfo.phone];
+  showScreen('HasRoommate');
+  document.querySelector('#screenHasRoommate .form-card').style.display = 'none';
+  document.getElementById('doneCard').innerHTML = `
+    <div class="done-icon">✅</div>
+    <h2>${info.name}，你好！</h2>
+    <p>系统检测到你已经入住 <strong>${info.room}</strong>。<br>你已被标记为"已有室友"，不纳入自动匹配。<br>如需调整请联系管理员。</p>
+    <button class="btn btn-outline btn-sm" onclick="skipToQuiz()" style="margin-top:8px;">顺便测一下我的人格 →</button>
+    <button class="btn btn-primary btn-sm" onclick="saveExcludedDone()" style="margin-top:8px;">确认，完成登记</button>
+  `;
+  document.getElementById('doneCard').style.display = 'block';
+}
+
+function saveExcludedDone() {
+  saveToCloud(null);
+  showToast('登记完成 ✓');
+  document.getElementById('doneCard').innerHTML = `
+    <div class="done-icon">🎉</div>
+    <h2>登记完成！</h2>
+    <p>祝你研究生生活愉快！🦁</p>
+  `;
 }
 
 async function checkDuplicate(studentId) {
@@ -486,15 +580,20 @@ function showRoommateForm() {
 
 function submitHasRoommate() {
   const name = document.getElementById('fRoommateName').value.trim();
-  if (!name) { showToast('请输入室友姓名'); return; }
+  if (!name) { showToast('请输入宿舍号'); return; }
   roommateName = name;
 
-  // Save to cloud: has_roommate=true, no quiz
-  saveToCloud(null);
-
-  // Show done
+  // Show done (不立即保存，等确认或测试后再保存，避免重复)
   document.querySelector('#screenHasRoommate .form-card').style.display = 'none';
-  document.getElementById('doneCard').style.display = 'block';
+  const doneCard = document.getElementById('doneCard');
+  doneCard.innerHTML = `
+    <div class="done-icon">✅</div>
+    <h2>登记成功！</h2>
+    <p>你已登记宿舍号 <strong>${name}</strong>。<br>你已被标记为"已有室友"，不纳入自动匹配。</p>
+    <button class="btn btn-outline btn-sm" onclick="skipToQuiz()" style="margin-top:8px;">顺便测一下我的人格 →</button>
+    <button class="btn btn-primary btn-sm" onclick="saveExcludedDone()" style="margin-top:8px;">确认，完成登记</button>
+  `;
+  doneCard.style.display = 'block';
 }
 
 function skipToQuiz() {
@@ -633,6 +732,9 @@ function showResult(typeId) {
       ${cautionHtml}
     </div>
     <p class="note">以上推荐仅供参考，室友相处更看重互相理解和包容。<br>最终分配以学院安排为准。</p>
+    ${hasRoommate ? '' : `
+    <button class="btn btn-primary btn-block" onclick="showScreen('Assign')" style="background:linear-gradient(135deg,${p.color},#38B2AC);">下一步 → 选择分配意愿</button>
+    `}
     <div class="btn-group">
       <button class="btn btn-outline btn-sm" onclick="resetQuiz()" style="color:${p.color};border-color:${p.color};">🔄 重新测试</button>
     </div>
@@ -644,6 +746,21 @@ function showResult(typeId) {
 
 function resetQuiz() {
   startQuiz();
+}
+
+function setPreference(pref) {
+  assignPreference = pref;
+  saveToCloud(resultType);
+  showScreen('Result');
+  // 更新结果页显示分配意愿
+  const note = document.createElement('div');
+  note.style.cssText = 'background:#E6FFFA;border-radius:12px;padding:14px;margin:12px 0;font-size:14px;font-weight:600;color:#2C7A7B;';
+  note.innerHTML = pref === 'accept'
+    ? '✅ 已记录：愿意接受分配，你将进入匹配池'
+    : '🤝 已记录：自行组队，你不会进入自动匹配池';
+  const resultContent = document.getElementById('resultContent');
+  resultContent.insertBefore(note, resultContent.firstChild);
+  showToast(pref === 'accept' ? '已记录：接受分配' : '已记录：自行组队');
 }
 
 // ============================================================
@@ -659,12 +776,13 @@ async function saveToCloud(typeId) {
       phone: userInfo.phone,
       has_roommate: hasRoommate,
       roommate_name: hasRoommate ? roommateName : null,
+      assign_preference: assignPreference,
       personality_type: typeId || null,
       scores: typeId ? JSON.stringify(scores) : null
     };
     const res = await fetch(API, {
       method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
       body: JSON.stringify(body)
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -744,23 +862,25 @@ async function loadAdminData() {
     const total = data.length;
     const testedCount = data.filter(r => r.personality_type).length;
     const hasRoommateCount = data.filter(r => r.has_roommate).length;
-    const needMatchCount = data.filter(r => !r.has_roommate && r.personality_type).length;
+    const acceptCount = data.filter(r => !r.has_roommate && r.assign_preference === 'accept').length;
+    const selfTeamCount = data.filter(r => !r.has_roommate && r.assign_preference === 'self_team').length;
 
-    // Count by personality for those who need matching
+    // Count by personality for those in matching pool (accept)
     const typeCounts = {};
     PERSONALITIES.forEach(p => { typeCounts[p.id] = 0; });
-    data.filter(r => !r.has_roommate && r.personality_type).forEach(r => {
+    data.filter(r => !r.has_roommate && r.personality_type && r.assign_preference === 'accept').forEach(r => {
       if (typeCounts[r.personality_type] !== undefined) typeCounts[r.personality_type]++;
     });
 
     const summaryHtml = `
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;">
-        <div style="background:#EBF8FF;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#3182CE;">${total}</div><div style="font-size:12px;color:var(--text-light);">总提交数</div></div>
-        <div style="background:#E6FFFA;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#38B2AC;">${needMatchCount}</div><div style="font-size:12px;color:var(--text-light);">待匹配人数</div></div>
-        <div style="background:#FFF5F5;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#E53E3E;">${hasRoommateCount}</div><div style="font-size:12px;color:var(--text-light);">已有室友</div></div>
-        <div style="background:#FAF5FF;border-radius:12px;padding:14px 18px;flex:1;min-width:100px;text-align:center;"><div style="font-size:28px;font-weight:900;color:#9F7AEA;">${testedCount}</div><div style="font-size:12px;color:var(--text-light);">完成测试</div></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+        <div style="background:#EBF8FF;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#3182CE;">${total}</div><div style="font-size:11px;color:var(--text-light);">总提交</div></div>
+        <div style="background:#FFF5F5;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#E53E3E;">${hasRoommateCount}</div><div style="font-size:11px;color:var(--text-light);">已入住(排除)</div></div>
+        <div style="background:#E6FFFA;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#38B2AC;">${acceptCount}</div><div style="font-size:11px;color:var(--text-light);">接受分配</div></div>
+        <div style="background:#FAF5FF;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#9F7AEA;">${selfTeamCount}</div><div style="font-size:11px;color:var(--text-light);">自行组队</div></div>
+        <div style="background:#FEFCBF;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:26px;font-weight:900;color:#B7791F;">${testedCount}</div><div style="font-size:11px;color:var(--text-light);">完成测试</div></div>
       </div>
-      <h3 style="margin-bottom:8px;">待匹配学生人格分布</h3>
+      <h3 style="margin-bottom:8px;">匹配池（接受分配）人格分布</h3>
       <div style="margin-bottom:16px;">
         ${PERSONALITIES.map(p => `<span style="display:inline-block;margin:2px 4px;padding:3px 10px;border-radius:12px;font-size:12px;background:${p.bgLight};color:${p.color};font-weight:600;">${p.emoji} ${p.name}: ${typeCounts[p.id]}</span>`).join('')}
       </div>
@@ -770,9 +890,10 @@ async function loadAdminData() {
     const rows = data.map((r,i) => {
       const pLabel = r.personality_type ? (pMap[r.personality_type]?.emoji||'') + ' ' + (pMap[r.personality_type]?.name||r.personality_type) : '未测试';
       const rmLabel = r.has_roommate ? '是（'+ (r.roommate_name||'') +'）' : '否';
+      const prefLabel = r.has_roommate ? '已入住' : (r.assign_preference === 'accept' ? '接受分配' : (r.assign_preference === 'self_team' ? '自行组队' : '未选择'));
       const time = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN') : '';
       return `<tr>
-        <td>${i+1}</td><td>${r.name||''}</td><td>${r.student_id||''}</td><td>${r.department||''}</td><td>${r.gender||''}</td><td>${r.phone||''}</td><td>${rmLabel}</td><td>${pLabel}</td><td>${time}</td>
+        <td>${i+1}</td><td>${r.name||''}</td><td>${r.student_id||''}</td><td>${r.department||''}</td><td>${r.gender||''}</td><td>${r.phone||''}</td><td>${rmLabel}</td><td>${prefLabel}</td><td>${pLabel}</td><td>${time}</td>
       </tr>`;
     }).join('');
 
@@ -787,7 +908,7 @@ async function loadAdminData() {
       </div>
       <div class="admin-table-wrap">
         <table class="admin-table">
-          <thead><tr><th>#</th><th>姓名</th><th>学号</th><th>专业</th><th>性别</th><th>电话</th><th>已有室友</th><th>人格类型</th><th>提交时间</th></tr></thead>
+          <thead><tr><th>#</th><th>姓名</th><th>学号</th><th>专业</th><th>性别</th><th>电话</th><th>已有室友</th><th>分配意愿</th><th>人格类型</th><th>提交时间</th></tr></thead>
           <tbody>${rows}</tbody>
         </table>
       </div>
@@ -804,11 +925,12 @@ async function loadAdminData() {
 function downloadCSV() {
   const data = window._adminData || [];
   if (!data.length) { showToast('暂无数据'); return; }
-  const headers = ['序号','姓名','学号','专业','性别','手机号','已有室友','室友姓名','人格类型','人格名称','提交时间'];
+  const headers = ['序号','姓名','学号','专业','性别','手机号','已有室友','宿舍号','分配意愿','人格类型','人格名称','提交时间'];
   const rows = data.map((r,i) => {
     const pName = r.personality_type ? (pMap[r.personality_type]?.name||'') : '';
     const time = r.created_at ? new Date(r.created_at).toLocaleString('zh-CN') : '';
-    return [i+1, r.name||'', r.student_id||'', r.department||'', r.gender||'', r.phone||'', r.has_roommate?'是':'否', r.roommate_name||'', r.personality_type||'', pName, time];
+    const prefLabel = r.has_roommate ? '已入住' : (r.assign_preference === 'accept' ? '接受分配' : (r.assign_preference === 'self_team' ? '自行组队' : '未选择'));
+    return [i+1, r.name||'', r.student_id||'', r.department||'', r.gender||'', r.phone||'', r.has_roommate?'是':'否', r.roommate_name||'', prefLabel, r.personality_type||'', pName, time];
   });
   // BOM for Excel UTF-8
   const BOM = '﻿';
@@ -960,12 +1082,13 @@ async function runDormAssignment() {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const allData = await res.json();
 
-    // Filter: need matching (has_roommate=false, has personality_type)
-    const toMatch = allData.filter(r => !r.has_roommate && r.personality_type);
+    // Filter: 匹配池 = 未排除 + 完成测试 + 愿意接受分配
+    const toMatch = allData.filter(r => !r.has_roommate && r.personality_type && r.assign_preference === 'accept');
     const excluded = allData.filter(r => r.has_roommate);
+    const selfTeam = allData.filter(r => !r.has_roommate && r.assign_preference === 'self_team');
 
     if (toMatch.length === 0) {
-      panel.innerHTML = '<h2>🏠 宿舍分配</h2><p style="color:#E53E3E;">没有可匹配的学生（所有人都已选好室友或未完成测试）</p><button class="btn btn-outline btn-sm" onclick="loadAdminData()">← 返回</button>';
+      panel.innerHTML = '<h2>🏠 宿舍分配</h2><p style="color:#E53E3E;">没有可匹配的学生（无人选择"接受分配"或未完成测试）</p><button class="btn btn-outline btn-sm" onclick="loadAdminData()">← 返回</button>';
       return;
     }
 
@@ -1018,10 +1141,11 @@ async function runDormAssignment() {
 
     panel.innerHTML = `
       <h2>🏠 宿舍分配结果</h2>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;margin:12px 0;">
-        <div style="background:#EBF8FF;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#3182CE;">${totalRooms}</div><div style="font-size:11px;color:var(--text-light);">总宿舍数</div></div>
-        <div style="background:#E6FFFA;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#38B2AC;">${totalAssigned}</div><div style="font-size:11px;color:var(--text-light);">已分配人数</div></div>
-        <div style="background:#FFF5F5;border-radius:12px;padding:12px 16px;flex:1;min-width:80px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#E53E3E;">${excluded.length}</div><div style="font-size:11px;color:var(--text-light);">已排除(有室友)</div></div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:12px 0;">
+        <div style="background:#EBF8FF;border-radius:12px;padding:12px 16px;flex:1;min-width:70px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#3182CE;">${totalRooms}</div><div style="font-size:11px;color:var(--text-light);">总宿舍数</div></div>
+        <div style="background:#E6FFFA;border-radius:12px;padding:12px 16px;flex:1;min-width:70px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#38B2AC;">${totalAssigned}</div><div style="font-size:11px;color:var(--text-light);">已分配</div></div>
+        <div style="background:#FFF5F5;border-radius:12px;padding:12px 16px;flex:1;min-width:70px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#E53E3E;">${excluded.length}</div><div style="font-size:11px;color:var(--text-light);">已入住</div></div>
+        <div style="background:#FAF5FF;border-radius:12px;padding:12px 16px;flex:1;min-width:70px;text-align:center;"><div style="font-size:24px;font-weight:900;color:#9F7AEA;">${selfTeam.length}</div><div style="font-size:11px;color:var(--text-light);">自行组队</div></div>
       </div>
       <div class="admin-bar">
         <button class="btn btn-primary btn-sm" onclick="downloadRoomCSV()">📥 下载分配表</button>
@@ -1034,7 +1158,7 @@ async function runDormAssignment() {
     `;
 
     // Store for CSV
-    window._roomData = { male: result.male, female: result.female, excluded };
+    window._roomData = { male: result.male, female: result.female, excluded, selfTeam };
   } catch(e) {
     panel.innerHTML = `<h2>🏠 宿舍分配</h2><p style="color:#E53E3E;">加载失败: ${e.message}</p><button class="btn btn-outline btn-sm" onclick="loadAdminData()">← 返回</button>`;
   }
@@ -1065,9 +1189,20 @@ function downloadRoomCSV() {
   // Add excluded students
   if (data.excluded.length > 0) {
     rows.push(['','','','','','','','','']);
-    rows.push(['=== 已排除学生（已有室友）===','','','','','','','','']);
+    rows.push(['=== 已入住学生（不参与分配）===','','','','','','','','']);
     data.excluded.forEach((r, i) => {
-      rows.push(['已排除', '', i+1, r.name, r.student_id, r.department||'', r.roommate_name||'有室友', r.phone||'', '']);
+      const pName = r.personality_type ? (pMap[r.personality_type]?.name||'') : '未测试';
+      rows.push([r.roommate_name||'已入住', r.gender||'', i+1, r.name, r.student_id, r.department||'', pName, r.phone||'', '']);
+    });
+  }
+
+  // Add self-team students
+  if (data.selfTeam.length > 0) {
+    rows.push(['','','','','','','','','']);
+    rows.push(['=== 自行组队学生（不参与分配）===','','','','','','','','']);
+    data.selfTeam.forEach((r, i) => {
+      const pName = r.personality_type ? (pMap[r.personality_type]?.name||'') : '';
+      rows.push(['自行组队', r.gender||'', i+1, r.name, r.student_id, r.department||'', pName, r.phone||'', '']);
     });
   }
 
