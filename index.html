@@ -1091,9 +1091,9 @@ async function runDormAssignment() {
   try {
     await initCloud();
     const res = await tcbApp.callFunction({ name: 'admin', data: { action: 'getAll' } });
-    const result = res.result;
-    if (!result || result.code !== 0) throw new Error((result && result.message) || '云函数调用失败');
-    const allData = result.data || [];
+    const cfResult = res.result;
+    if (!cfResult || cfResult.code !== 0) throw new Error((cfResult && cfResult.message) || '云函数调用失败');
+    const allData = cfResult.data || [];
 
     // Filter: 匹配池 = 未排除 + 完成测试 + 愿意接受分配
     const toMatch = allData.filter(r => !r.has_roommate && r.personality_type && r.assign_preference === 'accept');
