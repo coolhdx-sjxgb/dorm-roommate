@@ -793,16 +793,9 @@ function showResult(typeId) {
     ${hasRoommate ? '' : `
     <button class="btn btn-primary btn-block" onclick="showScreen('Assign')" style="background:linear-gradient(135deg,${p.color},#38B2AC);">下一步 → 选择分配意愿</button>
     `}
-    <div class="btn-group">
-      <button class="btn btn-outline btn-sm" onclick="resetQuiz()" style="color:${p.color};border-color:${p.color};">🔄 重新测试</button>
-    </div>
   `;
   document.getElementById('resultContent').innerHTML = html;
   showScreen('Result');
-}
-
-function resetQuiz() {
-  startQuiz();
 }
 
 function setPreference(pref) {
@@ -817,6 +810,9 @@ function setPreference(pref) {
     : '🤝 已记录：自行组队，你不会进入自动匹配池';
   const resultContent = document.getElementById('resultContent');
   resultContent.insertBefore(note, resultContent.firstChild);
+  // 隐藏"下一步"按钮，防止重复选择
+  const assignBtn = resultContent.querySelector('button[onclick="showScreen(\'Assign\')"]');
+  if (assignBtn) assignBtn.style.display = 'none';
   showToast(pref === 'accept' ? '已记录：接受分配' : '已记录：自行组队');
 }
 
