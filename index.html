@@ -7,6 +7,8 @@
 <title>研究生宿舍室友匹配 · 人格测试</title>
 <meta property="og:title" content="研究生宿舍室友匹配 🦁">
 <meta property="og:description" content="测测你的宿舍人格，找到最合拍的室友">
+<!-- 腾讯云开发 CloudBase SDK -->
+<script src="https://static.cloudbase.net/cloudbase-js-sdk/1.7.0/cloudbase.full.js"></script>
 <style>
 /* ===== CSS Variables & Reset ===== */
 :root {
@@ -226,7 +228,7 @@ body {
     <div class="form-card" style="margin-top:16px;">
       <h2>📝 已匹配室友登记</h2>
       <p class="form-sub">登记后你将不会被纳入室友自动匹配</p>
-      <div class="form-group"><label>你的宿舍号 *</label><input type="text" id="fRoommateName" placeholder="如：东15-101" maxlength="20"></div>
+      <div class="form-group"><label>你的宿舍号 *</label><input type="text" id="fRoommateName" placeholder="如：东15#101" maxlength="20"></div>
       <button class="btn btn-primary btn-block" onclick="submitHasRoommate()" style="background:linear-gradient(135deg,#E53E3E,#ED8936);">提交登记 ✓</button>
       <button class="btn btn-outline btn-block" style="margin-top:8px;font-size:14px;" onclick="skipToQuiz()">等等，我也想顺便测一下人格 →</button>
     </div>
@@ -256,10 +258,6 @@ body {
   <!-- Screen 6: Result -->
   <div class="screen" id="screenResult">
     <div class="result" id="resultContent"></div>
-    <div class="stats-section">
-      <h3>📊 全校参与统计 <span id="cloudTotal" style="font-weight:400;font-size:12px;color:var(--text-light);"></span></h3>
-      <div class="stats-list" id="cloudStatsList"><p style="text-align:center;color:var(--text-lighter);font-size:12px;">加载中…</p></div>
-    </div>
   </div>
 
   <!-- Screen 7: Assign Preference -->
@@ -359,82 +357,112 @@ const COMPATIBILITY = {
 // EXCLUDED LIST: 已入住/已匹配名单（按手机号识别）
 // ============================================================
 const EXCLUDED_LIST = {
-  '17771722389': { name:'郭凯铭', room:'东18-406' },
-  '17706507751': { name:'周彦然', room:'东18-406' },
-  '13587028516': { name:'徐奕', room:'东15-124' },
-  '19846719386': { name:'余甜会', room:'东15-124' },
-  '18157880659': { name:'何慧娜', room:'东15-102' },
-  '18185135605': { name:'包乾琳', room:'东15-102' },
-  '15384022419': { name:'郭可宁', room:'东15-102' },
-  '13857433461': { name:'王一煊', room:'东15-102' },
-  '18329025907': { name:'钟城浩', room:'东17-407' },
-  '19818508915': { name:'刘智星', room:'东17-407' },
-  '15355490069': { name:'宋何婉约', room:'东15-103' },
-  '15518194655': { name:'赵韩', room:'东15-103' },
-  '15942623217': { name:'许丽丽', room:'东15-103' },
-  '15212088910': { name:'陈君佳', room:'东15-103' },
-  '13806639626': { name:'孙芳', room:'东15-104' },
-  '15990179014': { name:'黄宝宏', room:'东15-104' },
-  '15988599967': { name:'章子璇', room:'东15-104' },
-  '18767208188': { name:'程序', room:'东15-104' },
-  '18838752701': { name:'王茹毅', room:'东15-105' },
-  '18671731979': { name:'甘雅琳', room:'东15-105' },
-  '18524269641': { name:'杨思远', room:'东17-407' },
-  '18858488779': { name:'陈诚', room:'东17-407' },
-  '19505852622': { name:'卞晴晴', room:'东15-105' },
-  '13757644431': { name:'林映辰', room:'东15-105' },
-  '15944463958': { name:'杜欣颖', room:'东15-111' },
-  '15167092986': { name:'朱子丹', room:'东15-111' },
-  '15838945816': { name:'贾默晗', room:'东15-111' },
-  '15328207072': { name:'李语绮', room:'东15-111' },
-  '15925608392': { name:'来敏聪', room:'东17-413' },
-  '17872877828': { name:'李广', room:'东17-413' },
-  '15868638976': { name:'王高乐', room:'东15-120' },
-  '15526247992': { name:'周彩艳', room:'东15-120' },
-  '18696744744': { name:'侯城', room:'东17-413' },
-  '13819820892': { name:'黄予萱', room:'东15-120' },
-  '18312911503': { name:'林语欣', room:'东15-120' },
-  '18357001417': { name:'杨舒钧', room:'东17-413' },
-  '19357380052': { name:'刘佳淇', room:'东15-121' },
-  '18768521284': { name:'罗予希', room:'东15-121' },
-  '19906839238': { name:'童心怡', room:'东15-121' },
-  '13380500103': { name:'陈天柔', room:'东15-124' },
-  '13758701013': { name:'叶璇', room:'东15-124' }
+  '17771722389': { name:'郭凯铭', room:'东18#406' },
+  '17706507751': { name:'周彦然', room:'东18#406' },
+  '13587028516': { name:'徐奕', room:'东15#124' },
+  '19846719386': { name:'余甜会', room:'东15#124' },
+  '18157880659': { name:'何慧娜', room:'东15#102' },
+  '18185135605': { name:'包乾琳', room:'东15#102' },
+  '15384022419': { name:'郭可宁', room:'东15#102' },
+  '13857433461': { name:'王一煊', room:'东15#102' },
+  '18329025907': { name:'钟城浩', room:'东17#407' },
+  '19818508915': { name:'刘智星', room:'东17#407' },
+  '15355490069': { name:'宋何婉约', room:'东15#103' },
+  '15518194655': { name:'赵韩', room:'东15#103' },
+  '15942623217': { name:'许丽丽', room:'东15#103' },
+  '15212088910': { name:'陈君佳', room:'东15#103' },
+  '13806639626': { name:'孙芳', room:'东15#104' },
+  '15990179014': { name:'黄宝宏', room:'东15#104' },
+  '15988599967': { name:'章子璇', room:'东15#104' },
+  '18767208188': { name:'程序', room:'东15#104' },
+  '18838752701': { name:'王茹毅', room:'东15#105' },
+  '18671731979': { name:'甘雅琳', room:'东15#105' },
+  '18524269641': { name:'杨思远', room:'东17#407' },
+  '18858488779': { name:'陈诚', room:'东17#407' },
+  '19505852622': { name:'卞晴晴', room:'东15#105' },
+  '13757644431': { name:'林映辰', room:'东15#105' },
+  '15944463958': { name:'杜欣颖', room:'东15#111' },
+  '15167092986': { name:'朱子丹', room:'东15#111' },
+  '15838945816': { name:'贾默晗', room:'东15#111' },
+  '15328207072': { name:'李语绮', room:'东15#111' },
+  '15925608392': { name:'来敏聪', room:'东17#413' },
+  '17872877828': { name:'李广', room:'东17#413' },
+  '15868638976': { name:'王高乐', room:'东15#120' },
+  '15526247992': { name:'周彩艳', room:'东15#120' },
+  '18696744744': { name:'侯城', room:'东17#413' },
+  '13819820892': { name:'黄予萱', room:'东15#120' },
+  '18312911503': { name:'林语欣', room:'东15#120' },
+  '18357001417': { name:'杨舒钧', room:'东17#413' },
+  '19357380052': { name:'刘佳淇', room:'东15#121' },
+  '18768521284': { name:'罗予希', room:'东15#121' },
+  '19906839238': { name:'童心怡', room:'东15#121' },
+  '13380500103': { name:'陈天柔', room:'东15#124' },
+  '13758701013': { name:'叶璇', room:'东15#124' }
 };
 
 // ============================================================
 // DATA: 10 Quiz Questions
 // ============================================================
 const QUESTIONS = [
-  { q:'截止日期前三天，你发现有个大问题。怎么办？', options:[
-    {text:'通宵重做，三天够用了 🔥',type:'baogan'},{text:'先分析问题根源，想清楚再动手 🧐',type:'lingdao'},{text:'冷静评估能改多少改多少，不慌 🧘',type:'danding'},{text:'换个角度重新构思，说不定因祸得福 💡',type:'chuangyi'}
+  { q:'晚上十二点，室友都睡了，你还没忙完。', options:[
+    {text:'越晚越精神，今晚必须把它弄完 🔥',type:'baogan'},
+    {text:'算了，先睡，明天早点起来接着干 🐟',type:'moyu'},
+    {text:'再撑一会儿，今天的事不留到明天 📈',type:'juanwang'},
+    {text:'不着急，按我自己的节奏来 🧘',type:'danding'}
   ]},
-  { q:'小组讨论时，你通常是？', options:[
-    {text:'话最多的那个，带气氛、抛想法 🎉',type:'sheniu'},{text:'把控讨论方向，适时拍板做决策 👑',type:'lingdao'},{text:'话不多，一开口就指出关键细节问题 🔍',type:'xijie'},{text:'安静听着，心里已想好怎么最高效搞定 🐟',type:'moyu'}
+  { q:'宿舍楼下搞活动，群里有人喊大家一起去。', options:[
+    {text:'走啊，我再拉几个隔壁宿舍的一起 🎉',type:'sheniu'},
+    {text:'我去，顺便看看能不能帮上点忙 👑',type:'lingdao'},
+    {text:'去凑个热闹，拍照聊天都参与下 ⭐',type:'quanneng'},
+    {text:'你们去玩吧，我想在宿舍歇会儿 🐟',type:'moyu'}
   ]},
-  { q:'翻看大学期间的成果，你最不满意的短板是？', options:[
-    {text:'执行做得不错，但整体概念不够大胆',type:'xijie'},{text:'想法挺炸的，但细节经不起推敲 🤔',type:'chuangyi'},{text:'各方面都还行，但没啥特别出彩的 ⭐',type:'quanneng'},{text:'数量够了，但单件质量还能更高 📈',type:'juanwang'}
+  { q:'刷朋友圈，看到同门又发了一篇论文。', options:[
+    {text:'有点慌，我也得抓紧整一篇 📈',type:'juanwang'},
+    {text:'真厉害，回头找他取取经 🤝',type:'sheniu'},
+    {text:'点个赞，然后继续按我的节奏走 🧘',type:'danding'},
+    {text:'看看他写的啥，说不定能给我点启发 💡',type:'chuangyi'}
   ]},
-  { q:'深夜只剩你一个还在学习/工作。你其实在？', options:[
-    {text:'越晚越有状态，今晚必须肝完这版 🔥',type:'baogan'},{text:'就剩最后一个小地方想再打磨一下…',type:'xijie'},{text:'刚才和同学聊天太嗨，现在才开始正经干活 😅',type:'sheniu'},{text:'享受一个人的安静时光，慢慢做不急 🧘',type:'danding'}
+  { q:'明天就要交东西了，今晚你还在改。', options:[
+    {text:'改了好几遍，总觉得还能再抠抠 🔍',type:'xijie'},
+    {text:'突然冒出个新想法，想推翻重来 💡',type:'chuangyi'},
+    {text:'差不多行了，能交就成 🐟',type:'moyu'},
+    {text:'今晚熬夜也得改到自己满意 🔥',type:'baogan'}
   ]},
-  { q:'看到同学拿了一个大奖/发了顶刊，你的第一反应？', options:[
-    {text:'立刻搜索比赛信息：这个我也能报！📈',type:'juanwang'},{text:'仔细研究TA的作品，学习创意思路 💡',type:'chuangyi'},{text:'马上发微信恭喜，顺便请教经验 🤝',type:'sheniu'},{text:'真厉害👏…然后继续按自己节奏来 🐟',type:'moyu'}
+  { q:'小组讨论半天没结果，僵在那儿了。', options:[
+    {text:'我来讲讲思路，先把方向定下来 👑',type:'lingdao'},
+    {text:'换个角度想想，兴许有别的办法 💡',type:'chuangyi'},
+    {text:'先散了吧，各自回去想想再碰 🐟',type:'moyu'},
+    {text:'先别急着定，还有几个细节没理顺 🔍',type:'xijie'}
   ]},
-  { q:'导师当众批评了你的成果/方案，你的真实反应是？', options:[
-    {text:'追问具体问题在哪，列清单回去改 👑',type:'lingdao'},{text:'听完点点头，内心其实没啥波澜 🧘',type:'danding'},{text:'表面平静，内心：今晚就肝一版新的给他看 🔥',type:'baogan'},{text:'默默记下每一个批评点，回去逐一修正 🔍',type:'xijie'}
+  { q:'导师说你最近状态不行。', options:[
+    {text:'心里咯噔一下，今晚就开始补 🔥',type:'baogan'},
+    {text:'问清楚到底哪儿不行，回去一条条改 🔍',type:'xijie'},
+    {text:'回去列个计划，一项项补上 👑',type:'lingdao'},
+    {text:'嗯嗯，不过我其实心里有数 🧘',type:'danding'}
   ]},
-  { q:'聚餐时，你一般在做什么？', options:[
-    {text:'满场跑，争取和每个人都聊一圈 🎉',type:'sheniu'},{text:'组织大家拍照、发言，确保没人被冷落 👑',type:'lingdao'},{text:'找个舒服角落，和几个好朋友安静吃饭 🐟',type:'moyu'},{text:'拍照、聊天、吃菜每样都参与一点，自然切换 ⭐',type:'quanneng'}
+  { q:'你的桌子 / 工位一般是啥样？', options:[
+    {text:'整整齐齐，每样东西有固定位置 🔍',type:'xijie'},
+    {text:'乱是乱了点，但我要啥都能一下翻到 🐟',type:'moyu'},
+    {text:'堆满了草稿、小物件和各种灵感碎片 💡',type:'chuangyi'},
+    {text:'看忙不忙，忙起来就顾不上收拾 ⭐',type:'quanneng'}
   ]},
-  { q:'专业能力上，你最想补哪块短板？', options:[
-    {text:'技法还行，但想法不够炸 💡',type:'chuangyi'},{text:'太纠结细节了，有时候看不到大局 🔍',type:'xijie'},{text:'太功利了，设计里少了点松弛感 📈',type:'juanwang'},{text:'什么都会一点，但什么都不够精 ⭐',type:'quanneng'}
+  { q:'难得一个下午没安排，你想怎么过？', options:[
+    {text:'睡到自然醒，起来点个外卖 🐟',type:'moyu'},
+    {text:'去图书馆或工位，把欠的进度补一补 📈',type:'juanwang'},
+    {text:'约同学出去逛逛、搓一顿 🎉',type:'sheniu'},
+    {text:'一个人待着，做点自己喜欢的事 🧘',type:'danding'}
   ]},
-  { q:'选课题/研究方向时，你最看重什么？', options:[
-    {text:'能不能让想象力彻底放飞 💡',type:'chuangyi'},{text:'能不能高效做出扎实的好成果 🐟',type:'moyu'},{text:'能不能全面展示所学 ⭐',type:'quanneng'},{text:'导师认不认可，方向稳不稳 📈',type:'juanwang'}
+  { q:'最累最烦的那阵子，你是怎么撑过来的？', options:[
+    {text:'硬扛，扛过去就好了 🔥',type:'baogan'},
+    {text:'找朋友倒倒苦水，说出来舒服多了 🤝',type:'sheniu'},
+    {text:'跟自己说没事，天塌不下来 🧘',type:'danding'},
+    {text:'出去走走、换个环境，重新找找感觉 💡',type:'chuangyi'}
   ]},
-  { q:'你理想中的宿舍氛围是？', options:[
-    {text:'热闹温馨，经常一起聊天聚会 🤝',type:'sheniu'},{text:'安静有序，各自专注互不干扰 🔥',type:'baogan'},{text:'松弛自在，随意就好不强求 🧘',type:'danding'},{text:'高效整洁，有规则有默契 🐟',type:'moyu'}
+  { q:'你希望宿舍是啥样的？', options:[
+    {text:'啥样的都行，我都能适应 ⭐',type:'quanneng'},
+    {text:'干净整洁，用完东西放回原位 🔍',type:'xijie'},
+    {text:'热热闹闹的，经常一起吃饭聊天 🎉',type:'sheniu'},
+    {text:'大家一起定个小目标，互相督促 📈',type:'juanwang'}
   ]}
 ];
 
@@ -454,16 +482,27 @@ let assignPreference = null; // 'accept' = 接受分配, 'self_team' = 自行组
 // ============================================================
 // IMAGE HELPERS
 // ============================================================
-const IMG_BASE = "https://lgzqpzuabievqgkfesxk.supabase.co/storage/v1/object/public/lions";
+const IMG_BASE = "assets";
 function lionImg(id) { return IMG_BASE + "/" + id + ".png"; }
 function lionImgTiny(id) { return IMG_BASE + "/" + id + "_tiny.png"; }
 
 // ============================================================
-// SUPABASE CONFIG
+// 腾讯云开发 CloudBase CONFIG
 // ============================================================
-const SUPABASE_URL = 'https://lgzqpzuabievqgkfesxk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_LwiwL-wZes1_8XuWlLToRg_ANSiPoUE';
-const API = SUPABASE_URL + '/rest/v1/roommate_results';
+const TCB_ENV = 'sushe-d2gwqciwq3bd766a4';
+let tcbApp = null;
+let tcbDb = null;
+let tcbReady = false;
+
+async function initCloud() {
+  if (tcbReady) return;
+  if (typeof cloudbase === 'undefined') throw new Error('CloudBase SDK 未加载');
+  tcbApp = cloudbase.init({ env: TCB_ENV });
+  const auth = tcbApp.auth();
+  await auth.anonymousAuthProvider().signIn();
+  tcbDb = tcbApp.database();
+  tcbReady = true;
+}
 
 // ============================================================
 // SCREEN MANAGEMENT
@@ -564,12 +603,9 @@ function saveExcludedDone() {
 
 async function checkDuplicate(studentId) {
   try {
-    const res = await fetch(API + '?select=student_id&student_id=eq.' + encodeURIComponent(studentId), {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-    });
-    if (!res.ok) return false;
-    const data = await res.json();
-    return data.length > 0;
+    await initCloud();
+    const res = await tcbDb.collection('roommate_results').where({ student_id: studentId }).get();
+    return res.data && res.data.length > 0;
   } catch(e) { return false; }
 }
 
@@ -581,6 +617,8 @@ function showRoommateForm() {
 function submitHasRoommate() {
   const name = document.getElementById('fRoommateName').value.trim();
   if (!name) { showToast('请输入宿舍号'); return; }
+  // 校验格式：东/西 + 数字 + # + 数字，如 东15#102
+  if (!/^[东西]\d+#\d+$/.test(name)) { showToast('格式不对，示例：东15#102'); return; }
   roommateName = name;
 
   // Show done (不立即保存，等确认或测试后再保存，避免重复)
@@ -741,7 +779,6 @@ function showResult(typeId) {
   `;
   document.getElementById('resultContent').innerHTML = html;
   showScreen('Result');
-  renderCloudStats();
 }
 
 function resetQuiz() {
@@ -768,6 +805,8 @@ function setPreference(pref) {
 // ============================================================
 async function saveToCloud(typeId) {
   try {
+    await initCloud();
+    const col = tcbDb.collection('roommate_results');
     const body = {
       name: userInfo.name,
       student_id: userInfo.studentId,
@@ -778,47 +817,18 @@ async function saveToCloud(typeId) {
       roommate_name: hasRoommate ? roommateName : null,
       assign_preference: assignPreference,
       personality_type: typeId || null,
-      scores: typeId ? JSON.stringify(scores) : null
+      scores: typeId ? JSON.stringify(scores) : null,
+      created_at: new Date().toISOString()
     };
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates' },
-      body: JSON.stringify(body)
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    // 同一学生重复提交时更新（PRIVATE 权限下只能查到自己的记录）
+    const existing = await col.where({ student_id: userInfo.studentId }).get();
+    if (existing.data && existing.data.length > 0) {
+      await col.doc(existing.data[0]._id).update(body);
+    } else {
+      await col.add(body);
+    }
     console.log('☁️ 提交成功');
   } catch(e) { console.warn('云端提交失败:', e.message); }
-}
-
-async function getCloudStats() {
-  try {
-    const res = await fetch(API + '?select=personality_type&personality_type=not.is.null', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const counts = {}; PERSONALITIES.forEach(p => { counts[p.id] = 0; });
-    data.forEach(r => { if (counts[r.personality_type] !== undefined) counts[r.personality_type]++; });
-    const total = data.length || 1;
-    const list = PERSONALITIES.map(p => ({ ...p, count: counts[p.id]||0 })).sort((a,b) => b.count - a.count);
-    return { list, total };
-  } catch(e) { return null; }
-}
-
-async function renderCloudStats() {
-  const el = document.getElementById('cloudStatsList');
-  const totalEl = document.getElementById('cloudTotal');
-  el.innerHTML = '<p style="text-align:center;color:var(--text-lighter);">加载中…</p>';
-  const data = await getCloudStats();
-  if (!data) { el.innerHTML = '<p style="text-align:center;color:var(--text-lighter);font-size:12px;">暂无数据</p>'; return; }
-  const { list, total } = data;
-  if (totalEl) totalEl.textContent = `共 ${total} 人参与`;
-  const maxCount = list[0]?.count || 1;
-  el.innerHTML = list.map(p => {
-    const pct = Math.round((p.count/total)*100);
-    const barW = maxCount>0 ? Math.max(2,Math.round((p.count/maxCount)*100)) : 0;
-    return `<div class="stats-row"><img src="${lionImgTiny(p.id)}" alt="${p.name}" style="width:24px;height:24px;flex-shrink:0;"><span class="s-name">${p.name}</span><span class="s-bar-wrap"><span class="s-bar" style="width:${barW}%;background:${p.color}"></span></span><span class="s-count">${p.count}人 (${pct}%)</span></div>`;
-  }).join('');
 }
 
 // ============================================================
@@ -850,11 +860,13 @@ async function loadAdminData() {
   const panel = document.getElementById('adminPanel');
   panel.innerHTML = '<h2>🔧 数据管理</h2><p style="color:var(--text-light);">加载中…</p>';
   try {
-    const res = await fetch(API + '?select=*&order=created_at.desc&limit=5000', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
+    await initCloud();
+    const res = await tcbApp.callFunction({ name: 'admin', data: { action: 'getAll' } });
+    const result = res.result;
+    if (!result || result.code !== 0) throw new Error((result && result.message) || '云函数调用失败');
+    const data = result.data || [];
+    // 按提交时间倒序
+    data.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
     if (data.length === 0) {
       panel.innerHTML = '<h2>🔧 数据管理</h2><p>暂无数据</p><button class="btn btn-outline btn-sm" onclick="closeAdmin()">关闭</button>';
       return;
@@ -904,6 +916,7 @@ async function loadAdminData() {
         <button class="btn btn-primary btn-sm" onclick="downloadCSV()">📥 下载原始数据</button>
         <button class="btn btn-primary btn-sm" onclick="runDormAssignment()" style="background:linear-gradient(135deg,#38B2AC,#2B6CB0);">🏠 开始分配宿舍</button>
         <button class="btn btn-outline btn-sm" onclick="loadAdminData()">🔄 刷新</button>
+        <button class="btn btn-outline btn-sm" onclick="clearAllData()" style="color:#E53E3E;border-color:#E53E3E;">🗑️ 清空数据</button>
         <span style="font-size:12px;color:var(--text-lighter);">共 ${total} 条记录</span>
       </div>
       <div class="admin-table-wrap">
@@ -1076,11 +1089,11 @@ async function runDormAssignment() {
   panel.innerHTML = '<h2>🏠 宿舍分配中…</h2><p style="color:var(--text-light);">正在拉取数据并计算最优分配…</p>';
 
   try {
-    const res = await fetch(API + '?select=*&order=created_at.desc&limit=5000', {
-      headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const allData = await res.json();
+    await initCloud();
+    const res = await tcbApp.callFunction({ name: 'admin', data: { action: 'getAll' } });
+    const result = res.result;
+    if (!result || result.code !== 0) throw new Error((result && result.message) || '云函数调用失败');
+    const allData = result.data || [];
 
     // Filter: 匹配池 = 未排除 + 完成测试 + 愿意接受分配
     const toMatch = allData.filter(r => !r.has_roommate && r.personality_type && r.assign_preference === 'accept');
@@ -1217,6 +1230,23 @@ function downloadRoomCSV() {
   a.click();
   URL.revokeObjectURL(url);
   showToast('分配表已下载！');
+}
+
+// ============================================================
+// CLEAR ALL DATA
+// ============================================================
+async function clearAllData() {
+  if (!confirm('确定要清空全部测试数据吗？此操作不可恢复！')) return;
+  try {
+    await initCloud();
+    const res = await tcbApp.callFunction({ name: 'admin', data: { action: 'clearAll' } });
+    const result = res.result;
+    if (!result || result.code !== 0) throw new Error((result && result.message) || '清空失败');
+    showToast('已清空全部数据');
+    loadAdminData();
+  } catch(e) {
+    showToast('清空失败: ' + e.message);
+  }
 }
 
 // ============================================================
